@@ -206,53 +206,110 @@ const Integrations = () => {
                         </Button>
                       </div>
 
-                      {/* Módulos */}
-                      <div className="space-y-4">
-                        <h3 className="font-semibold">Módulos a sincronizar</h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="leads" defaultChecked />
-                            <label htmlFor="leads" className="text-sm cursor-pointer">
-                              Leads (webhooks/polling)
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="properties" defaultChecked />
-                            <label htmlFor="properties" className="text-sm cursor-pointer">
-                              Propiedades (sincronización bidireccional)
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="activities" />
-                            <label htmlFor="activities" className="text-sm cursor-pointer">
-                              Actividades y Notas
-                            </label>
+                      {/* Módulos - Solo para CRM y MLS */}
+                      {integration.categoria !== "Email" && (
+                        <div className="space-y-4">
+                          <h3 className="font-semibold">Módulos a sincronizar</h3>
+                          <div className="space-y-3">
+                            {integration.categoria === "CRM" && (
+                              <>
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox id="leads" defaultChecked />
+                                  <label htmlFor="leads" className="text-sm cursor-pointer">
+                                    Leads (webhooks/polling)
+                                  </label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox id="properties" defaultChecked />
+                                  <label htmlFor="properties" className="text-sm cursor-pointer">
+                                    Propiedades (sincronización bidireccional)
+                                  </label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox id="activities" />
+                                  <label htmlFor="activities" className="text-sm cursor-pointer">
+                                    Actividades y Notas
+                                  </label>
+                                </div>
+                              </>
+                            )}
+                            {integration.categoria === "MLS" && (
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="properties" defaultChecked />
+                                <label htmlFor="properties" className="text-sm cursor-pointer">
+                                  Propiedades (sincronización automática)
+                                </label>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Eventos IA */}
                       <div className="space-y-4">
                         <h3 className="font-semibold">Eventos que disparan IA</h3>
                         <div className="space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="newLead" defaultChecked />
-                            <label htmlFor="newLead" className="text-sm cursor-pointer">
-                              Nuevo lead → Cualificar y contactar automáticamente
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="newProperty" defaultChecked />
-                            <label htmlFor="newProperty" className="text-sm cursor-pointer">
-                              Nueva propiedad → Detectar leads compatibles y contactar
-                            </label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox id="birthday" />
-                            <label htmlFor="birthday" className="text-sm cursor-pointer">
-                              Cumpleaños/fecha clave → Mensaje personalizado
-                            </label>
-                          </div>
+                          {integration.categoria === "CRM" && (
+                            <>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="newLead" defaultChecked />
+                                <label htmlFor="newLead" className="text-sm cursor-pointer">
+                                  Nuevo lead → Cualificar y contactar automáticamente
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="newProperty" defaultChecked />
+                                <label htmlFor="newProperty" className="text-sm cursor-pointer">
+                                  Nueva propiedad → Detectar leads compatibles y contactar
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="birthday" />
+                                <label htmlFor="birthday" className="text-sm cursor-pointer">
+                                  Cumpleaños/fecha clave → Mensaje personalizado
+                                </label>
+                              </div>
+                            </>
+                          )}
+                          {integration.categoria === "MLS" && (
+                            <>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="newProperty" defaultChecked />
+                                <label htmlFor="newProperty" className="text-sm cursor-pointer">
+                                  Nueva propiedad → Detectar leads compatibles y contactar
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="statusChange" />
+                                <label htmlFor="statusChange" className="text-sm cursor-pointer">
+                                  Cambio de estado de propiedad → Notificar a leads interesados
+                                </label>
+                              </div>
+                            </>
+                          )}
+                          {integration.categoria === "Email" && (
+                            <>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="portalLeads" defaultChecked />
+                                <label htmlFor="portalLeads" className="text-sm cursor-pointer">
+                                  Leads de portales inmobiliarios
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Checkbox id="campaignLeads" defaultChecked />
+                                <label htmlFor="campaignLeads" className="text-sm cursor-pointer">
+                                  Leads de campañas digitales
+                                </label>
+                              </div>
+                              <div className="space-y-2 mt-4">
+                                <Label htmlFor="customPrompt">Prompt personalizado (opcional)</Label>
+                                <Input
+                                  id="customPrompt"
+                                  placeholder="Ej: Detectar idioma y responder en ese idioma..."
+                                />
+                              </div>
+                            </>
+                          )}
                         </div>
                       </div>
 
