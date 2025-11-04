@@ -28,7 +28,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => navigate("/leads")}
+              onClick={() => navigate("/ai-actions")}
             >
               Ver Demo
             </Button>

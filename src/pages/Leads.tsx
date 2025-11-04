@@ -60,6 +60,7 @@ const Leads = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [estadoFilter, setEstadoFilter] = useState("todos");
+  const [kpiFilter, setKpiFilter] = useState<"todos" | "nuevos" | "calientes">("todos");
 
   const getEstadoColor = (estado: string) => {
     const colors = {
@@ -73,6 +74,12 @@ const Leads = () => {
     };
     return colors[estado as keyof typeof colors] || colors["Nuevo"];
   };
+
+  const filteredLeads = mockLeads.filter((lead) => {
+    if (kpiFilter === "nuevos" && lead.estado !== "Nuevo") return false;
+    if (kpiFilter === "calientes" && !["Cualificado", "Visita", "Oferta"].includes(lead.estado)) return false;
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -92,7 +99,10 @@ const Leads = () => {
             </CardContent>
           </Card>
           
-          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+          <Card 
+            className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer hover:scale-[1.02]"
+            onClick={() => setKpiFilter(kpiFilter === "nuevos" ? "todos" : "nuevos")}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Nuevos Leads</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -103,7 +113,10 @@ const Leads = () => {
             </CardContent>
           </Card>
           
-          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+          <Card 
+            className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer hover:scale-[1.02]"
+            onClick={() => setKpiFilter(kpiFilter === "calientes" ? "todos" : "calientes")}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Leads Muy Calientes</CardTitle>
               <Flame className="h-4 w-4 text-muted-foreground" />
@@ -163,7 +176,7 @@ const Leads = () => {
 
             {/* Leads List */}
             <div className="space-y-4">
-              {mockLeads.map((lead) => (
+              {filteredLeads.map((lead) => (
                 <Card key={lead.id} className="shadow-card hover:shadow-card-hover transition-all cursor-pointer">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">

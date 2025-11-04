@@ -25,7 +25,7 @@ const Auth = () => {
         title: isLogin ? "¡Bienvenido!" : "¡Cuenta creada!",
         description: isLogin ? "Has iniciado sesión correctamente" : "Tu cuenta ha sido creada exitosamente",
       });
-      navigate("/leads");
+      navigate("/ai-actions");
       setLoading(false);
     }, 1000);
   };
