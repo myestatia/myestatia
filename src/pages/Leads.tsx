@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, MessageSquare, Mail, Eye, Send, Sparkles, Clock, Calendar, CheckCircle2 } from "lucide-react";
+import { Search, Filter, MessageSquare, Mail, Eye, Sparkles, Clock, TrendingUp, Flame, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const mockLeads = [
@@ -94,41 +94,40 @@ const Leads = () => {
           
           <Card className="shadow-card hover:shadow-card-hover transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Respuesta &lt;24h</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Nuevos Leads</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">23</div>
+              <p className="text-xs text-muted-foreground mt-1">Últimos 7 días</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Leads Muy Calientes</CardTitle>
+              <Flame className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">8</div>
+              <p className="text-xs text-muted-foreground mt-1">Alta probabilidad</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Tasa de Respuesta</CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">94%</div>
-              <p className="text-xs text-muted-foreground mt-1">Tasa de respuesta</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Citas Semana</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">18</div>
-              <p className="text-xs text-muted-foreground mt-1">8 visitas agendadas</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-card hover:shadow-card-hover transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Presentaciones</CardTitle>
-              <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">43</div>
-              <p className="text-xs text-muted-foreground mt-1">Enviadas este mes</p>
+              <p className="text-xs text-muted-foreground mt-1">Últimas 24 horas</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Main Content */}
-          <div className="flex-1">
+        {/* Main Content */}
+        <div className="flex-1">
             {/* Filters */}
             <Card className="mb-6 shadow-card">
               <CardContent className="pt-6">
@@ -209,70 +208,20 @@ const Leads = () => {
                         <Eye className="mr-2 h-4 w-4" />
                         Ver
                       </Button>
-                      <Button size="sm" variant="outline" className="bg-gradient-primary text-primary-foreground border-0 hover:opacity-90">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="bg-gradient-primary text-primary-foreground border-0 hover:opacity-90"
+                        onClick={() => navigate(`/ai-actions?leadId=${lead.id}`)}
+                      >
                         <Sparkles className="mr-2 h-4 w-4" />
                         Acciones IA
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Send className="mr-2 h-4 w-4" />
-                        Enviar presentación
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
-
-          {/* Sidebar - AI Suggestions */}
-          <div className="lg:w-80">
-            <Card className="shadow-ai sticky top-24">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Sugerencias IA
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <p className="text-sm mb-3">
-                    Tienes <span className="font-semibold text-primary">8 leads</span> sin respuesta en las últimas 24h
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                      Aprobar
-                    </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
-                      Editar
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <p className="text-sm mb-3">
-                    Nuevas propiedades encajan con <span className="font-semibold text-primary">12 leads</span>
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
-                      Previsualizar
-                    </Button>
-                    <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                      Enviar
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-lg border border-border bg-card">
-                  <p className="text-sm mb-3">
-                    <span className="font-semibold text-primary">3 leads</span> con alta probabilidad de conversión
-                  </p>
-                  <Button size="sm" variant="outline" className="w-full">
-                    Ver detalles
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

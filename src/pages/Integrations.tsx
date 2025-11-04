@@ -12,6 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 
 const integrations = [
   {
+    id: "email",
+    nombre: "Email",
+    descripcion: "Conecta tu cuenta de email para enviar y recibir mensajes automáticamente",
+    logo: "✉️",
+    estado: "desconectado",
+    categoria: "Email"
+  },
+  {
     id: "resales",
     nombre: "RESALES",
     descripcion: "MLS España - Portal líder de propiedades en la Costa del Sol",
@@ -165,6 +173,18 @@ const Integrations = () => {
                             onChange={(e) => setApiKey(e.target.value)}
                           />
                         </div>
+                        {integration.categoria === "Email" && (
+                          <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="tu@email.com"
+                              value={urlBase}
+                              onChange={(e) => setUrlBase(e.target.value)}
+                            />
+                          </div>
+                        )}
                         {integration.categoria === "MLS" && (
                           <div className="space-y-2">
                             <Label htmlFor="urlBase">URL Base (opcional)</Label>

@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sparkles, Search, User, LogOut } from "lucide-react";
+import { Sparkles, User, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   DropdownMenu,
@@ -51,17 +50,12 @@ const Header = () => {
           </Button>
         </nav>
 
-        <div className="flex-1 flex items-center gap-4 ml-4">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar leads, propiedades..."
-              className="pl-10 border-border"
-            />
-          </div>
-        </div>
+        <div className="flex-1" />
 
-        <Button className="bg-gradient-primary hover:opacity-90 shadow-ai">
+        <Button 
+          className="bg-gradient-primary hover:opacity-90 shadow-ai"
+          onClick={() => navigate("/ai-actions")}
+        >
           <Sparkles className="mr-2 h-4 w-4" />
           Acciones IA
         </Button>

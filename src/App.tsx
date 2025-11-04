@@ -9,6 +9,7 @@ import Leads from "./pages/Leads";
 import LeadDetail from "./pages/LeadDetail";
 import Properties from "./pages/Properties";
 import Integrations from "./pages/Integrations";
+import AIActions from "./pages/AIActions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/leads/:id" element={<LeadDetail />} />
           <Route path="/properties" element={<Properties />} />
           <Route path="/integrations" element={<Integrations />} />
+          <Route path="/ai-actions" element={<AIActions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
