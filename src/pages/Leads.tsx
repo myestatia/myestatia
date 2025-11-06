@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, MessageSquare, Mail, Eye, Sparkles, Clock, TrendingUp, Flame, Target } from "lucide-react";
+import { Search, Filter, MessageSquare, Mail, Eye, Sparkles, Clock, TrendingUp, Flame, Target, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const mockLeads = [
   {
@@ -58,9 +59,17 @@ const mockLeads = [
 
 const Leads = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [estadoFilter, setEstadoFilter] = useState("todos");
   const [kpiFilter, setKpiFilter] = useState<"todos" | "nuevos" | "calientes">("todos");
+
+  const handleAddLead = () => {
+    toast({
+      title: "Próximamente",
+      description: "Formulario de crear lead disponible pronto",
+    });
+  };
 
   const getEstadoColor = (estado: string) => {
     const colors = {
@@ -86,6 +95,18 @@ const Leads = () => {
       <Header />
       
       <div className="container mx-auto p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Leads</h1>
+            <p className="text-muted-foreground">Gestiona tus contactos y acelera las conversiones con IA</p>
+          </div>
+          <Button className="bg-gradient-primary hover:opacity-90" onClick={handleAddLead}>
+            <Plus className="mr-2 h-4 w-4" />
+            Crear Lead
+          </Button>
+        </div>
+
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card className="shadow-card hover:shadow-card-hover transition-shadow">
