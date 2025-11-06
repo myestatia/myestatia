@@ -52,6 +52,14 @@ const integrations = [
     categoria: "MLS"
   },
   {
+    id: "habihub",
+    nombre: "Habihub",
+    descripcion: "MLS de obra nueva - Gestión de propiedades en desarrollo",
+    logo: "🏗️",
+    estado: "desconectado",
+    categoria: "MLS"
+  },
+  {
     id: "propertybase",
     nombre: "Propertybase",
     descripcion: "CRM inmobiliario basado en Salesforce",
