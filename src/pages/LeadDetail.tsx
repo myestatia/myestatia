@@ -10,67 +10,68 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { MessageSquare, Mail, Send, Sparkles, Mic, ArrowLeft, Home, Euro, MapPin, Calendar, Phone, User } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-
-const mockMessages = [
-  {
-    id: "1",
-    canal: "WhatsApp",
-    mensaje: "Hola, estoy interesado en propiedades en Nueva Andalucía",
-    autor: "lead",
-    fecha: "10:30",
-    resumenIA: "Lead interesado en zona Nueva Andalucía. Perfil comprador activo."
-  },
-  {
-    id: "2",
-    canal: "WhatsApp",
-    mensaje: "Perfecto Carlos, ¿tienes un presupuesto estimado para tu búsqueda?",
-    autor: "IA",
-    fecha: "10:32",
-    resumenIA: null
-  },
-  {
-    id: "3",
-    canal: "WhatsApp",
-    mensaje: "Entre 400 y 500 mil euros aproximadamente",
-    autor: "lead",
-    fecha: "10:45",
-    resumenIA: "Presupuesto cualificado: 400-500K. Lead solvente para matching."
-  }
-];
-
-const mockProperties = [
-  {
-    id: "1",
-    imagen: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop",
-    precio: "450.000€",
-    zona: "Nueva Andalucía",
-    m2: "180m²",
-    dormitorios: 3,
-    banos: 2,
-    score: 95
-  },
-  {
-    id: "2",
-    imagen: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop",
-    precio: "485.000€",
-    zona: "Nueva Andalucía",
-    m2: "200m²",
-    dormitorios: 4,
-    banos: 3,
-    score: 92
-  }
-];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getLead } from "@/api/leads";
+import { getConversations, sendMessage } from "@/api/conversations";
+import { getProperties } from "@/api/properties";
+import { format } from "date-fns";
 
 const LeadDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
   const [aiPrompt, setAiPrompt] = useState("");
   const [recording, setRecording] = useState(false);
+  const [messageInput, setMessageInput] = useState("");
+
+  const { data: lead, isLoading: isLoadingLead } = useQuery({
+    queryKey: ['lead', id],
+    queryFn: () => getLead(id!),
+    enabled: !!id,
+  });
+
+  const { data: conversations } = useQuery({
+    queryKey: ['conversations', id],
+    queryFn: () => getConversations(id!),
+    enabled: !!id,
+  });
+
+  // Fetch properties for matching tab (mock logic for now: fetch all)
+  const { data: properties } = useQuery({
+    queryKey: ['properties'],
+    queryFn: getProperties,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: (content: string) => sendMessage(id!, { senderType: 'agent', content }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations', id] });
+      setMessageInput("");
+    },
+  });
+
+  const handleSendMessage = () => {
+    if (!messageInput.trim()) return;
+    sendMessageMutation.mutate(messageInput);
+  };
+
+  if (isLoadingLead) {
+    return <div className="flex justify-center items-center min-h-screen">Cargando lead...</div>;
+  }
+
+  if (!lead) {
+    return <div className="flex justify-center items-center min-h-screen">Lead no encontrado</div>;
+  }
+
+  // Flatten messages from all conversations and sort by timestamp
+  const allMessages = conversations?.flatMap(c => c.messages).sort((a, b) =>
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  ) || [];
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
-      
+
       <div className="container mx-auto p-6">
         <Button variant="ghost" onClick={() => navigate("/leads")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -83,29 +84,31 @@ const LeadDetail = () => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-2xl font-bold">Carlos Martínez</h1>
+                  <h1 className="text-2xl font-bold">{lead.name}</h1>
                   <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    Nuevo
+                    {lead.status || "Nuevo"}
                   </Badge>
-                  <Badge variant="outline" className="bg-muted">ES</Badge>
+                  <Badge variant="outline" className="bg-muted">{lead.language || "ES"}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Mail className="h-3 w-3" />
-                    carlos@email.com
+                    {lead.email}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    +34 612 345 678
-                  </span>
+                  {lead.phone && (
+                    <span className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      {lead.phone}
+                    </span>
+                  )}
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" />
-                    Portal Inmobiliario
+                    {lead.source || "Portal Inmobiliario"}
                   </span>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Select defaultValue="nuevo">
+                <Select defaultValue={lead.status?.toLowerCase() || "nuevo"}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue />
                   </SelectTrigger>
@@ -122,15 +125,15 @@ const LeadDetail = () => {
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">
                 <Euro className="mr-1 h-3 w-3" />
-                400-500K
+                {lead.budget ? `${lead.budget.toLocaleString()}€` : "N/A"}
               </Badge>
               <Badge variant="secondary">
                 <MapPin className="mr-1 h-3 w-3" />
-                Nueva Andalucía
+                {lead.zone || "N/A"}
               </Badge>
               <Badge variant="secondary">
                 <Home className="mr-1 h-3 w-3" />
-                Villa
+                {lead.propertyType || "N/A"}
               </Badge>
               <Badge variant="secondary">
                 <Calendar className="mr-1 h-3 w-3" />
@@ -155,39 +158,45 @@ const LeadDetail = () => {
                 <Card className="shadow-card">
                   <CardContent className="p-6">
                     <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
-                      {mockMessages.map((msg) => (
-                        <div key={msg.id} className="space-y-2">
-                          <div className={`flex gap-2 ${msg.autor === "lead" ? "justify-start" : "justify-end"}`}>
-                            <div className={`max-w-[80%] rounded-lg p-3 ${
-                              msg.autor === "lead" 
-                                ? "bg-muted" 
-                                : "bg-gradient-primary text-primary-foreground"
-                            }`}>
-                              <div className="flex items-center gap-2 mb-1">
-                                {msg.canal === "WhatsApp" ? <MessageSquare className="h-3 w-3" /> : <Mail className="h-3 w-3" />}
-                                <span className="text-xs opacity-80">{msg.fecha}</span>
+                      {allMessages.length === 0 ? (
+                        <p className="text-center text-muted-foreground">No hay mensajes todavía.</p>
+                      ) : (
+                        allMessages.map((msg) => (
+                          <div key={msg.id} className="space-y-2">
+                            <div className={`flex gap-2 ${msg.senderType === "lead" ? "justify-start" : "justify-end"}`}>
+                              <div className={`max-w-[80%] rounded-lg p-3 ${msg.senderType === "lead"
+                                  ? "bg-muted"
+                                  : "bg-gradient-primary text-primary-foreground"
+                                }`}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  {msg.channel === "WhatsApp" ? <MessageSquare className="h-3 w-3" /> : <Mail className="h-3 w-3" />}
+                                  <span className="text-xs opacity-80">
+                                    {format(new Date(msg.timestamp), "HH:mm")}
+                                  </span>
+                                </div>
+                                <p className="text-sm">{msg.content}</p>
                               </div>
-                              <p className="text-sm">{msg.mensaje}</p>
                             </div>
+                            {msg.aiSummary && (
+                              <div className="ml-8 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                                <div className="flex items-start gap-2">
+                                  <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                  <p className="text-sm text-muted-foreground">{msg.aiSummary}</p>
+                                </div>
+                              </div>
+                            )}
                           </div>
-                          {msg.resumenIA && (
-                            <div className="ml-8 p-3 rounded-lg bg-primary/5 border border-primary/20">
-                              <div className="flex items-start gap-2">
-                                <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                                <p className="text-sm text-muted-foreground">{msg.resumenIA}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        ))
+                      )}
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Pregunta al Agente IA sobre este lead..."
-                          value={aiPrompt}
-                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="Escribe un mensaje..."
+                          value={messageInput}
+                          onChange={(e) => setMessageInput(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                           className="flex-1"
                         />
                         <Button
@@ -198,7 +207,11 @@ const LeadDetail = () => {
                         >
                           <Mic className="h-4 w-4" />
                         </Button>
-                        <Button className="bg-gradient-primary hover:opacity-90">
+                        <Button
+                          className="bg-gradient-primary hover:opacity-90"
+                          onClick={handleSendMessage}
+                          disabled={sendMessageMutation.isPending}
+                        >
                           <Send className="h-4 w-4" />
                         </Button>
                       </div>
@@ -232,19 +245,19 @@ const LeadDetail = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Nombre</Label>
-                        <Input defaultValue="Carlos Martínez" />
+                        <Input defaultValue={lead.name} />
                       </div>
                       <div className="space-y-2">
                         <Label>Email</Label>
-                        <Input defaultValue="carlos@email.com" />
+                        <Input defaultValue={lead.email} />
                       </div>
                       <div className="space-y-2">
                         <Label>Teléfono</Label>
-                        <Input defaultValue="+34 612 345 678" />
+                        <Input defaultValue={lead.phone} />
                       </div>
                       <div className="space-y-2">
                         <Label>Idioma</Label>
-                        <Select defaultValue="es">
+                        <Select defaultValue={lead.language?.toLowerCase() || "es"}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -256,15 +269,15 @@ const LeadDetail = () => {
                       </div>
                       <div className="space-y-2">
                         <Label>Presupuesto</Label>
-                        <Input defaultValue="400-500K" />
+                        <Input defaultValue={lead.budget?.toString()} />
                       </div>
                       <div className="space-y-2">
                         <Label>Zona preferida</Label>
-                        <Input defaultValue="Nueva Andalucía" />
+                        <Input defaultValue={lead.zone} />
                       </div>
                       <div className="space-y-2">
                         <Label>Tipología</Label>
-                        <Select defaultValue="villa">
+                        <Select defaultValue={lead.propertyType?.toLowerCase() || "villa"}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -272,20 +285,6 @@ const LeadDetail = () => {
                             <SelectItem value="villa">Villa</SelectItem>
                             <SelectItem value="apartamento">Apartamento</SelectItem>
                             <SelectItem value="atico">Ático</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Timing</Label>
-                        <Select defaultValue="3-6">
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="urgente">Urgente</SelectItem>
-                            <SelectItem value="1-3">1-3 meses</SelectItem>
-                            <SelectItem value="3-6">3-6 meses</SelectItem>
-                            <SelectItem value="6+">+6 meses</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -302,29 +301,29 @@ const LeadDetail = () => {
               </TabsContent>
 
               <TabsContent value="matching" className="space-y-4 mt-4">
-                {mockProperties.map((prop) => (
+                {properties?.slice(0, 2).map((prop) => (
                   <Card key={prop.id} className="shadow-card hover:shadow-card-hover transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex gap-4">
                         <img
-                          src={prop.imagen}
+                          src={prop.image || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop"}
                           alt="Property"
                           className="w-32 h-32 object-cover rounded-lg"
                         />
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <p className="font-bold text-lg">{prop.precio}</p>
-                              <p className="text-sm text-muted-foreground">{prop.zona}</p>
+                              <p className="font-bold text-lg">{prop.price}€</p>
+                              <p className="text-sm text-muted-foreground">{prop.zone || prop.address}</p>
                             </div>
                             <Badge className="bg-success text-success-foreground">
-                              {prop.score}% match
+                              95% match
                             </Badge>
                           </div>
                           <div className="flex gap-4 text-sm text-muted-foreground mb-3">
-                            <span>{prop.m2}</span>
-                            <span>{prop.dormitorios} dorm</span>
-                            <span>{prop.banos} baños</span>
+                            <span>{prop.area}m²</span>
+                            <span>{prop.rooms} dorm</span>
+                            <span>{prop.bathrooms} baños</span>
                           </div>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">
