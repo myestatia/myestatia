@@ -67,9 +67,9 @@ const Leads = () => {
     estado: mapStatus(lead.status),
     idioma: lead.language || "ES",
     origen: lead.source || "Web",
-    presupuesto: lead.budget ? `${lead.budget.toLocaleString()}€` : "N/A",
-    zona: lead.zone || "N/A",
-    tipologia: lead.propertyType || "N/A",
+    presupuesto: lead.budget ? `${lead.budget.toLocaleString()}€` : null,
+    zona: lead.zone || null,
+    tipologia: lead.propertyType || null,
     propiedadesSugeridas: lead.suggestedPropertiesCount || 0,
     ultimaActividad: lead.lastInteraction
       ? `Hace ${formatDistanceToNow(new Date(lead.lastInteraction), { locale: es })}`
@@ -239,15 +239,21 @@ const Leads = () => {
                         <span className="text-xs">{lead.ultimaActividad}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {lead.presupuesto}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          {lead.zona}
-                        </Badge>
-                        <Badge variant="secondary" className="text-xs">
-                          {lead.tipologia}
-                        </Badge>
+                        {lead.presupuesto && (
+                          <Badge variant="secondary" className="text-xs">
+                            {lead.presupuesto}
+                          </Badge>
+                        )}
+                        {lead.zona && (
+                          <Badge variant="secondary" className="text-xs">
+                            {lead.zona}
+                          </Badge>
+                        )}
+                        {lead.tipologia && (
+                          <Badge variant="secondary" className="text-xs">
+                            {lead.tipologia}
+                          </Badge>
+                        )}
                         <Badge variant="outline" className="text-xs bg-primary/5 text-primary">
                           {lead.propiedadesSugeridas} propiedades sugeridas
                         </Badge>

@@ -3,13 +3,13 @@ import { fetchClient } from './client';
 export interface Property {
     id: string;
     reference: string;
-    company_id: string;
+    companyId: string;
     title: string;
     address?: string;
     rooms?: number;
     price?: number;
     description?: string;
-    created_at?: string;
+    createdAt?: string;
     image?: string;
     area?: number;
     bathrooms?: number;

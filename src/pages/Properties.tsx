@@ -148,18 +148,24 @@ const Properties = () => {
                 </div>
 
                 <div className="flex items-center gap-4 text-sm mb-4 text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    {property.m2}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Bed className="h-3 w-3" />
-                    {property.dormitorios}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Bath className="h-3 w-3" />
-                    {property.banos}
-                  </span>
+                  {property.m2 !== "N/A" && (
+                    <span className="flex items-center gap-1">
+                      <Home className="h-3 w-3" />
+                      {property.m2}
+                    </span>
+                  )}
+                  {property.dormitorios > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Bed className="h-3 w-3" />
+                      {property.dormitorios}
+                    </span>
+                  )}
+                  {property.banos > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Bath className="h-3 w-3" />
+                      {property.banos}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">
