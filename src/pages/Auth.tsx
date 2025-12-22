@@ -5,29 +5,63 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Building2 } from "lucide-react";
+import { fetchClient } from "@/api/client";
+import { useAuth } from "@/context/AuthContext";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simular autenticación
-    setTimeout(() => {
+    try {
+      const endpoint = isLogin ? "/auth/login" : "/auth/register";
+      const payload = isLogin
+        ? { email, password }
+        : { email, password, name, company_name: companyName };
+
+      const response = await fetchClient<{ token: string; agent: any }>(endpoint, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      login(response.token, response.agent);
+
       toast({
         title: isLogin ? "¡Bienvenido!" : "¡Cuenta creada!",
-        description: isLogin ? "Has iniciado sesión correctamente" : "Tu cuenta ha sido creada exitosamente",
+        description: isLogin
+          ? "Has iniciado sesión correctamente"
+          : "Tu cuenta ha sido creada exitosamente",
       });
       navigate("/ai-actions");
+    } catch (error: any) {
+      console.error(error);
+      let title = "Error";
+      let message = error.message || "Ha ocurrido un error durante la autenticación";
+
+      if (message.includes("401") || message.includes("Unauthorized")) {
+        title = isLogin ? "Acceso Denegado" : "Error de Registro";
+        message = "Usuario y/o contraseña incorrectas. Por favor asegúrate de que tus credenciales son correctas.";
+      }
+
+      toast({
+        title: title,
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleGoogleAuth = () => {
@@ -51,6 +85,35 @@ const Auth = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleAuth} className="space-y-4">
+            {!isLogin && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nombre Completo</Label>
+                  <Input
+                    id="name"
+                    placeholder="Juan Pérez"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="border-border"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="company">Nombre de la Inmobiliaria</Label>
+                  <div className="relative">
+                    <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="company"
+                      placeholder="Inmobiliaria Ejemplar"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      required
+                      className="border-border pl-9"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -89,6 +152,7 @@ const Auth = () => {
             </div>
           </div>
 
+          {/* Google Auth - Disabled until implemented
           <Button
             type="button"
             variant="outline"
@@ -96,25 +160,11 @@ const Auth = () => {
             onClick={handleGoogleAuth}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"
-              />
+               ...
             </svg>
             Google
           </Button>
+          */}
 
           <div className="text-center text-sm">
             <button
@@ -130,5 +180,7 @@ const Auth = () => {
     </div>
   );
 };
+
+
 
 export default Auth;
