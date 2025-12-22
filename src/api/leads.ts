@@ -28,3 +28,17 @@ export const getLeads = async (): Promise<Lead[]> => {
 export const getLead = async (id: string): Promise<Lead> => {
     return fetchClient<Lead>(`/leads/${id}`);
 };
+
+export const updateLead = async (id: string, data: Partial<Lead>): Promise<void> => {
+    return fetchClient<void>(`/leads/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+    });
+};
+
+export const createLead = async (data: Partial<Lead>): Promise<Lead> => {
+    return fetchClient<Lead>('/leads', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+};

@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { MessageSquare, Mail, Send, Sparkles, Mic, ArrowLeft, Home, Euro, MapPin, Calendar, Phone, User } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getLead } from "@/api/leads";
+import { useToast } from "@/hooks/use-toast";
+import { getLead, updateLead } from "@/api/leads";
 import { getConversations, sendMessage } from "@/api/conversations";
 import { getProperties } from "@/api/properties";
 import { format } from "date-fns";
@@ -20,15 +21,40 @@ const LeadDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [aiPrompt, setAiPrompt] = useState("");
   const [recording, setRecording] = useState(false);
   const [messageInput, setMessageInput] = useState("");
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    language: "es",
+    budget: "",
+    zone: "",
+    propertyType: "villa",
+  });
 
   const { data: lead, isLoading: isLoadingLead } = useQuery({
     queryKey: ['lead', id],
     queryFn: () => getLead(id!),
     enabled: !!id,
   });
+
+  // Update form data when lead data is loaded
+  if (lead && formData.name === "" && !isLoadingLead) {
+    setFormData({
+      name: lead.name || "",
+      email: lead.email || "",
+      phone: lead.phone || "",
+      language: lead.language?.toLowerCase() || "es",
+      budget: lead.budget?.toString() || "",
+      zone: lead.zone || "",
+      propertyType: lead.propertyType?.toLowerCase() || "villa",
+    });
+  }
 
   const { data: conversations } = useQuery({
     queryKey: ['conversations', id],
@@ -39,7 +65,7 @@ const LeadDetail = () => {
   // Fetch properties for matching tab (mock logic for now: fetch all)
   const { data: properties } = useQuery({
     queryKey: ['properties'],
-    queryFn: getProperties,
+    queryFn: () => getProperties(),
   });
 
   const sendMessageMutation = useMutation({
@@ -50,9 +76,34 @@ const LeadDetail = () => {
     },
   });
 
+  const updateLeadMutation = useMutation({
+    mutationFn: (data: any) => updateLead(id!, {
+      ...data,
+      budget: data.budget ? parseFloat(data.budget) : 0,
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead', id] });
+      toast({
+        title: "Lead actualizado",
+        description: "Los cambios se han guardado correctamente.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los cambios.",
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleSendMessage = () => {
     if (!messageInput.trim()) return;
     sendMessageMutation.mutate(messageInput);
+  };
+
+  const handleUpdateLead = () => {
+    updateLeadMutation.mutate(formData);
   };
 
   if (isLoadingLead) {
@@ -165,8 +216,8 @@ const LeadDetail = () => {
                           <div key={msg.id} className="space-y-2">
                             <div className={`flex gap-2 ${msg.senderType === "lead" ? "justify-start" : "justify-end"}`}>
                               <div className={`max-w-[80%] rounded-lg p-3 ${msg.senderType === "lead"
-                                  ? "bg-muted"
-                                  : "bg-gradient-primary text-primary-foreground"
+                                ? "bg-muted"
+                                : "bg-gradient-primary text-primary-foreground"
                                 }`}>
                                 <div className="flex items-center gap-2 mb-1">
                                   {msg.channel === "WhatsApp" ? <MessageSquare className="h-3 w-3" /> : <Mail className="h-3 w-3" />}
@@ -245,19 +296,31 @@ const LeadDetail = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>Nombre</Label>
-                        <Input defaultValue={lead.name} />
+                        <Input
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Email</Label>
-                        <Input defaultValue={lead.email} />
+                        <Input
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Teléfono</Label>
-                        <Input defaultValue={lead.phone} />
+                        <Input
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Idioma</Label>
-                        <Select defaultValue={lead.language?.toLowerCase() || "es"}>
+                        <Select
+                          value={formData.language}
+                          onValueChange={(val) => setFormData({ ...formData, language: val })}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -269,15 +332,25 @@ const LeadDetail = () => {
                       </div>
                       <div className="space-y-2">
                         <Label>Presupuesto</Label>
-                        <Input defaultValue={lead.budget?.toString()} />
+                        <Input
+                          value={formData.budget}
+                          onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                          type="number"
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Zona preferida</Label>
-                        <Input defaultValue={lead.zone} />
+                        <Input
+                          value={formData.zone}
+                          onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
+                        />
                       </div>
                       <div className="space-y-2">
                         <Label>Tipología</Label>
-                        <Select defaultValue={lead.propertyType?.toLowerCase() || "villa"}>
+                        <Select
+                          value={formData.propertyType}
+                          onValueChange={(val) => setFormData({ ...formData, propertyType: val })}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
@@ -293,8 +366,12 @@ const LeadDetail = () => {
                       <Label>Notas</Label>
                       <Textarea placeholder="Añadir notas sobre el lead..." rows={4} />
                     </div>
-                    <Button className="bg-gradient-primary hover:opacity-90">
-                      Guardar cambios
+                    <Button
+                      className="bg-gradient-primary hover:opacity-90"
+                      onClick={handleUpdateLead}
+                      disabled={updateLeadMutation.isPending}
+                    >
+                      {updateLeadMutation.isPending ? "Guardando..." : "Guardar cambios"}
                     </Button>
                   </CardContent>
                 </Card>

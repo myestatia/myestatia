@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getLeads } from "@/api/leads";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import LeadCreateModal from "@/components/LeadCreateModal";
 
 const Leads = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Leads = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [estadoFilter, setEstadoFilter] = useState("todos");
   const [kpiFilter, setKpiFilter] = useState<"todos" | "nuevos" | "calientes">("todos");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data: leadsData, isLoading, error } = useQuery({
     queryKey: ['leads'],
@@ -26,10 +28,7 @@ const Leads = () => {
   });
 
   const handleAddLead = () => {
-    toast({
-      title: "Próximamente",
-      description: "Formulario de crear lead disponible pronto",
-    });
+    setIsCreateModalOpen(true);
   };
 
   const getEstadoColor = (estado: string) => {
@@ -287,6 +286,10 @@ const Leads = () => {
           </div>
         </div>
       </div>
+      <LeadCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };

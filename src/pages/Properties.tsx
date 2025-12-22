@@ -6,24 +6,45 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Search, Filter, Users, Send, Eye, Home, MapPin, Bed, Bath } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { getProperties } from "@/api/properties";
+import PropertyCreateModal from "@/components/PropertyCreateModal";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const Properties = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Filters state
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minRooms, setMinRooms] = useState("");
+  const [zone, setZone] = useState("");
+
+  const debouncedSearch = useDebounce(searchQuery, 500);
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+  const debouncedMinRooms = useDebounce(minRooms, 500);
+  const debouncedZone = useDebounce(zone, 500);
 
   const { data: propertiesData, isLoading, error } = useQuery({
-    queryKey: ['properties'],
-    queryFn: getProperties,
+    queryKey: ['properties', debouncedSearch, debouncedMinPrice, debouncedMaxPrice, debouncedMinRooms, debouncedZone],
+    queryFn: () => getProperties({
+      search: debouncedSearch,
+      minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
+      maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
+      minRooms: debouncedMinRooms ? Number(debouncedMinRooms) : undefined,
+      zone: debouncedZone,
+    }),
+    placeholderData: (previousData) => previousData,
   });
 
   const handleAddProperty = () => {
-    toast({
-      title: "Próximamente",
-      description: "Formulario de añadir propiedad disponible pronto",
-    });
+    setIsCreateModalOpen(true);
   };
 
   const properties = propertiesData?.map(prop => ({
@@ -41,16 +62,8 @@ const Properties = () => {
     nueva: prop.isNew || false
   })) || [];
 
-  const filteredProperties = properties.filter(prop => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (!prop.titulo.toLowerCase().includes(query) &&
-        !prop.zona.toLowerCase().includes(query)) {
-        return false;
-      }
-    }
-    return true;
-  });
+  /* Client-side filtering removed in favor of API search */
+  const finalProperties = properties;
 
   if (isLoading) {
     return <div className="flex justify-center items-center min-h-screen">Cargando propiedades...</div>;
@@ -120,7 +133,7 @@ const Properties = () => {
 
         {/* Properties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property) => (
+          {finalProperties.map((property) => (
             <Card key={property.id} className="shadow-card hover:shadow-card-hover transition-all overflow-hidden">
               <div className="relative">
                 <img
@@ -181,7 +194,7 @@ const Properties = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/properties/${property.id}`)}>
                     <Eye className="mr-2 h-3 w-3" />
                     Ver
                   </Button>
@@ -193,13 +206,17 @@ const Properties = () => {
               </CardContent>
             </Card>
           ))}
-          {filteredProperties.length === 0 && (
+          {finalProperties.length === 0 && (
             <div className="col-span-full text-center py-10 text-muted-foreground">
               No se encontraron propiedades.
             </div>
           )}
         </div>
       </div>
+      <PropertyCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };
