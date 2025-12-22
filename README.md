@@ -1,73 +1,80 @@
-# Welcome to your Lovable project
+# MyEstatia
 
-## Project info
+AI-Powered Real Estate CRM.
 
-**URL**: https://lovable.dev/projects/c73af851-f57c-4d60-88e0-a324fa6394b3
+## Project Structure
 
-## How can I edit this code?
+*   **`myestatia-go`**: Backend (Go + Gin + Gorm + PostgreSQL). - https://github.com/myestatia/myestatia-go
+*   **`myestatia`**: Frontend (React + Vite + TailwindCSS). - https://github.com/myestatia/myestatia
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+Ensure you have installed:
+*   [Go](https://go.dev/dl/) (1.21+)
+*   [Node.js](https://nodejs.org/) (18+)
+*   [PostgreSQL](https://www.postgresql.org/)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c73af851-f57c-4d60-88e0-a324fa6394b3) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 1. Backend Setup (`myestatia-go`)
 
-**Use your preferred IDE**
+The backend handles business logic, database, and authentication.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Steps:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1.  Navigate to the backend directory:
+    ```bash
+    cd myestatia-go
+    ```
 
-Follow these steps:
+2.  Configure environment variables:
+    Create a `.env` file in `myestatia-go/` with the following content (adjust your DB credentials):
+    ```env
+    DB_HOST=localhost
+    DB_USER=postgres
+    DB_PASSWORD=your_password
+    DB_NAME=myestatia
+    DB_PORT=5432
+    DB_SSLMODE=disable
+    JWT_SECRET_KEY=super_secure_secret_key
+    ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3.  Install dependencies and start the server:
+    ```bash
+    go mod tidy
+    go run cmd/main.go
+    ```
+    *The server will start at `http://localhost:8080`.*
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 2. Frontend Setup (`myestatia`)
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+The frontend is a modern Chat-like user interface.
 
-**Edit a file directly in GitHub**
+### Steps:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1.  Open a new terminal and navigate to the frontend directory:
+    ```bash
+    cd myestatia
+    ```
 
-**Use GitHub Codespaces**
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3.  Start the development server:
+    ```bash
+    npm run dev
+    ```
+    *The web application will be available at `http://localhost:5173`.*
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 3. Usage
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c73af851-f57c-4d60-88e0-a324fa6394b3) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1.  Open your browser at **`http://localhost:5173`**.
+2.  Click on **"Start Now"**.
+3.  If it's your first time, go to the **"Create new account"** tab and register.
+4.  You will automatically access the Dashboard (`/ai-actions`).
