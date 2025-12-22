@@ -5,69 +5,78 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Filter, Users, Send, Eye, Home, Euro, MapPin, Bed, Bath } from "lucide-react";
+import { Plus, Search, Filter, Users, Send, Eye, Home, MapPin, Bed, Bath } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-
-const mockProperties = [
-  {
-    id: "1",
-    imagen: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop",
-    titulo: "Villa de Lujo en Nueva Andalucía",
-    precio: "450.000€",
-    zona: "Nueva Andalucía",
-    m2: "180m²",
-    dormitorios: 3,
-    banos: 2,
-    estado: "Disponible",
-    fuente: "Propio",
-    leadsCompatibles: 8,
-    nueva: true
-  },
-  {
-    id: "2",
-    imagen: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop",
-    titulo: "Apartamento Moderno Golden Mile",
-    precio: "850.000€",
-    zona: "Golden Mile",
-    m2: "120m²",
-    dormitorios: 2,
-    banos: 2,
-    estado: "Disponible",
-    fuente: "RESALES",
-    leadsCompatibles: 12,
-    nueva: false
-  },
-  {
-    id: "3",
-    imagen: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop",
-    titulo: "Ático con Vistas Sierra Blanca",
-    precio: "680.000€",
-    zona: "Sierra Blanca",
-    m2: "200m²",
-    dormitorios: 4,
-    banos: 3,
-    estado: "Disponible",
-    fuente: "Inmobalia",
-    leadsCompatibles: 5,
-    nueva: true
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import { getProperties } from "@/api/properties";
+import PropertyCreateModal from "@/components/PropertyCreateModal";
+import { useDebounce } from "@/hooks/use-debounce";
 
 const Properties = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Filters state
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minRooms, setMinRooms] = useState("");
+  const [zone, setZone] = useState("");
+
+  const debouncedSearch = useDebounce(searchQuery, 500);
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+  const debouncedMinRooms = useDebounce(minRooms, 500);
+  const debouncedZone = useDebounce(zone, 500);
+
+  const { data: propertiesData, isLoading, error } = useQuery({
+    queryKey: ['properties', debouncedSearch, debouncedMinPrice, debouncedMaxPrice, debouncedMinRooms, debouncedZone],
+    queryFn: () => getProperties({
+      search: debouncedSearch,
+      minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
+      maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
+      minRooms: debouncedMinRooms ? Number(debouncedMinRooms) : undefined,
+      zone: debouncedZone,
+    }),
+    placeholderData: (previousData) => previousData,
+  });
 
   const handleAddProperty = () => {
-    toast({
-      title: "Próximamente",
-      description: "Formulario de añadir propiedad disponible pronto",
-    });
+    setIsCreateModalOpen(true);
   };
+
+  const properties = propertiesData?.map(prop => ({
+    id: prop.id,
+    imagen: prop.image || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop", // Fallback image
+    titulo: prop.title,
+    precio: prop.price ? `${prop.price.toLocaleString()}€` : "N/A",
+    zona: prop.zone || prop.address || "N/A",
+    m2: prop.area ? `${prop.area}m²` : "N/A",
+    dormitorios: prop.rooms || 0,
+    banos: prop.bathrooms || 0,
+    estado: prop.status || "Disponible",
+    fuente: prop.source || "Propio",
+    leadsCompatibles: prop.compatibleLeadsCount || 0,
+    nueva: prop.isNew || false
+  })) || [];
+
+  /* Client-side filtering removed in favor of API search */
+  const finalProperties = properties;
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center min-h-screen">Cargando propiedades...</div>;
+  }
+
+  if (error) {
+    return <div className="flex justify-center items-center min-h-screen text-red-500">Error al cargar propiedades</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
-      
+
       <div className="container mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -124,7 +133,7 @@ const Properties = () => {
 
         {/* Properties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockProperties.map((property) => (
+          {finalProperties.map((property) => (
             <Card key={property.id} className="shadow-card hover:shadow-card-hover transition-all overflow-hidden">
               <div className="relative">
                 <img
@@ -152,18 +161,24 @@ const Properties = () => {
                 </div>
 
                 <div className="flex items-center gap-4 text-sm mb-4 text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Home className="h-3 w-3" />
-                    {property.m2}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Bed className="h-3 w-3" />
-                    {property.dormitorios}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Bath className="h-3 w-3" />
-                    {property.banos}
-                  </span>
+                  {property.m2 !== "N/A" && (
+                    <span className="flex items-center gap-1">
+                      <Home className="h-3 w-3" />
+                      {property.m2}
+                    </span>
+                  )}
+                  {property.dormitorios > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Bed className="h-3 w-3" />
+                      {property.dormitorios}
+                    </span>
+                  )}
+                  {property.banos > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Bath className="h-3 w-3" />
+                      {property.banos}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 mb-4">
@@ -179,7 +194,7 @@ const Properties = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/properties/${property.id}`)}>
                     <Eye className="mr-2 h-3 w-3" />
                     Ver
                   </Button>
@@ -191,8 +206,17 @@ const Properties = () => {
               </CardContent>
             </Card>
           ))}
+          {finalProperties.length === 0 && (
+            <div className="col-span-full text-center py-10 text-muted-foreground">
+              No se encontraron propiedades.
+            </div>
+          )}
         </div>
       </div>
+      <PropertyCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 };
