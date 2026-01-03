@@ -18,6 +18,8 @@ export interface Property {
     compatibleLeadsCount?: number;
     isNew?: boolean;
     zone?: string;
+    energyCertificate?: string;
+    yearBuilt?: number;
 }
 
 export interface PropertyFilters {
@@ -53,9 +55,25 @@ export const createProperty = async (data: Partial<Property>): Promise<Property>
     });
 };
 
+export interface PropertySubtype {
+    id: string;
+    name: string;
+    displayName: string;
+    type: string;
+}
+
+export const getSubtypes = async (type?: string): Promise<PropertySubtype[]> => {
+    let url = '/property-subtypes';
+    if (type) {
+        url += `?type=${type}`;
+    }
+    return fetchClient<PropertySubtype[]>(url);
+};
+
 export const updateProperty = async (id: string, data: Partial<Property>): Promise<Property> => {
     return fetchClient<Property>(`/properties/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
     });
 };
+

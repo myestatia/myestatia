@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createProperty } from "@/api/properties";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createProperty, getSubtypes } from "@/api/properties";
 import { useToast } from "@/hooks/use-toast";
 
 interface PropertyCreateModalProps {
@@ -24,6 +24,16 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
         bathrooms: "",
         area: "",
         status: "available",
+        type: "",
+        subtypeId: "",
+        yearBuilt: "",
+        energyCertificate: "",
+    });
+
+    const { data: subtypes, isLoading: isLoadingSubtypes } = useQuery({
+        queryKey: ['subtypes', formData.type],
+        queryFn: () => getSubtypes(formData.type),
+        enabled: !!formData.type,
     });
 
     const createMutation = useMutation({
@@ -33,6 +43,8 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
             rooms: data.rooms ? parseInt(data.rooms) : 0,
             bathrooms: data.bathrooms ? parseInt(data.bathrooms) : 0,
             area: data.area ? parseFloat(data.area) : 0,
+            yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : 0,
+            energyCertificate: data.energyCertificate || "",
         }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["properties"] });
@@ -47,7 +59,11 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                 rooms: "",
                 bathrooms: "",
                 area: "",
-                status: "available"
+                status: "available",
+                type: "",
+                subtypeId: "",
+                yearBuilt: "",
+                energyCertificate: ""
             });
             onClose();
         },
@@ -96,9 +112,16 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                         </Label>
                         <Input
                             id="price"
-                            type="number"
-                            value={formData.price}
-                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            type="text"
+                            value={formData.price ? new Intl.NumberFormat('es-ES').format(parseFloat(formData.price.replace(/\./g, ''))) : ''}
+                            onChange={(e) => {
+                                // Remove points to get raw number
+                                const rawValue = e.target.value.replace(/\./g, '');
+                                // Check if it is a number
+                                if (/^\d*$/.test(rawValue)) {
+                                    setFormData({ ...formData, price: rawValue });
+                                }
+                            }}
                             className="col-span-3"
                         />
                     </div>
@@ -149,6 +172,67 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="yearBuilt" className="text-right">
+                            Year Built
+                        </Label>
+                        <Input
+                            id="yearBuilt"
+                            type="number"
+                            value={formData.yearBuilt}
+                            onChange={(e) => setFormData({ ...formData, yearBuilt: e.target.value })}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="energyCertificate" className="text-right">Energy Certificate</Label>
+                        <Input
+                            id="energyCertificate"
+                            type="text"
+                            value={formData.energyCertificate}
+                            onChange={(e) => setFormData({ ...formData, energyCertificate: e.target.value })}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="type" className="text-right">Type</Label>
+                        <Select
+                            value={formData.type}
+                            onValueChange={(val) => {
+                                setFormData({ ...formData, type: val, subtypeId: "" });
+                                // React Query will automatically fetch new subtypes based on this state change if we use useQuery dependent key
+                            }}
+                        >
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="APARTMENT">Apartment</SelectItem>
+                                <SelectItem value="HOUSE">House</SelectItem>
+                                <SelectItem value="LAND">Land</SelectItem>
+                                <SelectItem value="COMMERCIAL">Commercial</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="subtype" className="text-right">Subtype</Label>
+                        <Select
+                            value={formData.subtypeId}
+                            onValueChange={(val) => setFormData({ ...formData, subtypeId: val })}
+                            disabled={!formData.type}
+                        >
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder={isLoadingSubtypes ? "Loading..." : "Select Subtype"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {subtypes?.map((st) => (
+                                    <SelectItem key={st.id} value={st.id}>{st.displayName}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="status" className="text-right">
                             Status

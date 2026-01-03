@@ -35,6 +35,7 @@ const LeadDetail = () => {
     budget: "",
     zone: "",
     propertyType: "villa",
+    notes: "",
   });
 
   const { data: lead, isLoading: isLoadingLead } = useQuery({
@@ -53,6 +54,7 @@ const LeadDetail = () => {
       budget: lead.budget?.toString() || "",
       zone: lead.zone || "",
       propertyType: lead.propertyType?.toLowerCase() || "villa",
+      notes: lead.notes || "",
     });
   }
 
@@ -364,7 +366,12 @@ const LeadDetail = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Notas</Label>
-                      <Textarea placeholder="Añadir notas sobre el lead..." rows={4} />
+                      <Textarea
+                        placeholder="Añadir notas sobre el lead..."
+                        rows={4}
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      />
                     </div>
                     <Button
                       className="bg-gradient-primary hover:opacity-90"

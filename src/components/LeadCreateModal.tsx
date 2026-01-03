@@ -24,6 +24,34 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
         source: "web",
     });
 
+    const [errors, setErrors] = useState({
+        email: "",
+        phone: "",
+    });
+
+    const validateField = (name: string, value: string) => {
+        let error = "";
+        if (name === "email") {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                error = "Invalid email format.";
+            }
+        }
+        if (name === "phone") {
+            const phoneRegex = /^[\d\+\-\s]{9,16}$/;
+            if (value && !phoneRegex.test(value)) {
+                error = "Invalid phone format (9-16 digits/chars).";
+            }
+        }
+        setErrors(prev => ({ ...prev, [name]: error }));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
+        validateField(id, value);
+    };
+
     const createMutation = useMutation({
         mutationFn: createLead,
         onSuccess: () => {
@@ -33,6 +61,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                 description: "The lead has been successfully created.",
             });
             setFormData({ name: "", email: "", phone: "", language: "es", source: "web" });
+            setErrors({ email: "", phone: "" });
             onClose();
         },
         onError: () => {
@@ -53,6 +82,24 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
             });
             return;
         }
+
+        // Final check before submit
+        if (errors.email || errors.phone) {
+            toast({
+                title: "Validation Error",
+                description: "Please fix the validation errors before submitting.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        // Check if empty but required (email already checked above structure, but re-run validation if somehow bypassed)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setErrors(prev => ({ ...prev, email: "Invalid email format." }));
+            return;
+        }
+
         createMutation.mutate(formData);
     };
 
@@ -70,7 +117,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         <Input
                             id="name"
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={handleChange}
                             className="col-span-3"
                         />
                     </div>
@@ -78,24 +125,31 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         <Label htmlFor="email" className="text-right">
                             Email *
                         </Label>
-                        <Input
-                            id="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="col-span-3"
-                        />
+                        <div className="col-span-3">
+                            <Input
+                                id="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={errors.email ? "border-red-500" : ""}
+                            />
+                            {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
+                        </div>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="phone" className="text-right">
                             Phone
                         </Label>
-                        <Input
-                            id="phone"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="col-span-3"
-                        />
+                        <div className="col-span-3">
+                            <Input
+                                id="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className={errors.phone ? "border-red-500" : ""}
+                            />
+                            {errors.phone && <span className="text-red-500 text-xs mt-1 block">{errors.phone}</span>}
+                        </div>
                     </div>
+                    {/* Rest of the form stays the same for Language/Source */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="language" className="text-right">
                             Language
