@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { getLeads } from "@/api/leads";
 import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import LeadCreateModal from "@/components/LeadCreateModal";
 
 const Leads = () => {
@@ -33,27 +33,27 @@ const Leads = () => {
 
   const getEstadoColor = (estado: string) => {
     const colors = {
-      "Nuevo": "bg-primary/10 text-primary border-primary/20",
-      "En seguimiento": "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-      "Cualificado": "bg-success/10 text-success border-success/20",
-      "Visita": "bg-blue-500/10 text-blue-600 border-blue-500/20",
-      "Oferta": "bg-purple-500/10 text-purple-600 border-purple-500/20",
-      "Cerrado": "bg-green-500/10 text-green-600 border-green-500/20",
-      "Dormido": "bg-gray-500/10 text-gray-600 border-gray-500/20"
+      "New": "bg-primary/10 text-primary border-primary/20",
+      "Follow-up": "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+      "Qualified": "bg-success/10 text-success border-success/20",
+      "Visit": "bg-blue-500/10 text-blue-600 border-blue-500/20",
+      "Offer": "bg-purple-500/10 text-purple-600 border-purple-500/20",
+      "Closed": "bg-green-500/10 text-green-600 border-green-500/20",
+      "Sleeping": "bg-gray-500/10 text-gray-600 border-gray-500/20"
     };
-    return colors[estado as keyof typeof colors] || colors["Nuevo"];
+    return colors[estado as keyof typeof colors] || colors["New"];
   };
 
   const mapStatus = (status?: string) => {
-    if (!status) return "Nuevo";
+    if (!status) return "New";
     const map: Record<string, string> = {
-      "new": "Nuevo",
-      "qualified": "Cualificado",
-      "contacted": "En seguimiento",
-      "closed": "Cerrado",
-      "visit": "Visita",
-      "offer": "Oferta",
-      "sleeping": "Dormido"
+      "new": "New",
+      "qualified": "Qualified",
+      "contacted": "Follow-up",
+      "closed": "Closed",
+      "visit": "Visit",
+      "offer": "Offer",
+      "sleeping": "Sleeping"
     };
     return map[status.toLowerCase()] || status;
   };
@@ -71,14 +71,14 @@ const Leads = () => {
     tipologia: lead.propertyType || null,
     propiedadesSugeridas: lead.suggestedPropertiesCount || 0,
     ultimaActividad: lead.lastInteraction
-      ? `Hace ${formatDistanceToNow(new Date(lead.lastInteraction), { locale: es })}`
-      : "Sin actividad",
+      ? `${formatDistanceToNow(new Date(lead.lastInteraction), { addSuffix: true, locale: enUS })}`
+      : "No activity",
     canal: lead.channel || "Web"
   })) || [];
 
   const filteredLeads = leads.filter((lead) => {
-    if (kpiFilter === "nuevos" && lead.estado !== "Nuevo") return false;
-    if (kpiFilter === "calientes" && !["Cualificado", "Visita", "Oferta"].includes(lead.estado)) return false;
+    if (kpiFilter === "nuevos" && lead.estado !== "New") return false;
+    if (kpiFilter === "calientes" && !["Qualified", "Visit", "Offer"].includes(lead.estado)) return false;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -98,11 +98,11 @@ const Leads = () => {
   });
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando leads...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading leads...</div>;
   }
 
   if (error) {
-    return <div className="flex justify-center items-center min-h-screen text-red-500">Error al cargar leads</div>;
+    return <div className="flex justify-center items-center min-h-screen text-red-500">Error loading leads</div>;
   }
 
   return (
@@ -114,11 +114,11 @@ const Leads = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">Leads</h1>
-            <p className="text-muted-foreground">Gestiona tus contactos y acelera las conversiones con IA</p>
+            <p className="text-muted-foreground">Manage your contacts and accelerate conversions with AI</p>
           </div>
           <Button className="bg-gradient-primary hover:opacity-90" onClick={handleAddLead}>
             <Plus className="mr-2 h-4 w-4" />
-            Crear Lead
+            Create Lead
           </Button>
         </div>
 
@@ -126,12 +126,12 @@ const Leads = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card className="shadow-card hover:shadow-card-hover transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Leads Activos</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Active Leads</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{leads.length}</div>
-              <p className="text-xs text-muted-foreground mt-1">Total registrados</p>
+              <p className="text-xs text-muted-foreground mt-1">Total registered</p>
             </CardContent>
           </Card>
 
@@ -140,12 +140,12 @@ const Leads = () => {
             onClick={() => setKpiFilter(kpiFilter === "nuevos" ? "todos" : "nuevos")}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Nuevos Leads</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{leads.filter(l => l.estado === "Nuevo").length}</div>
-              <p className="text-xs text-muted-foreground mt-1">Pendientes de contactar</p>
+              <div className="text-2xl font-bold">{leads.filter(l => l.estado === "New").length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Pending contact</p>
             </CardContent>
           </Card>
 
@@ -154,25 +154,25 @@ const Leads = () => {
             onClick={() => setKpiFilter(kpiFilter === "calientes" ? "todos" : "calientes")}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Leads Muy Calientes</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Hot Leads</CardTitle>
               <Flame className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {leads.filter(l => ["Cualificado", "Visita", "Oferta"].includes(l.estado)).length}
+                {leads.filter(l => ["Qualified", "Visit", "Offer"].includes(l.estado)).length}
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Alta probabilidad</p>
+              <p className="text-xs text-muted-foreground mt-1">High probability</p>
             </CardContent>
           </Card>
 
           <Card className="shadow-card hover:shadow-card-hover transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tasa de Respuesta</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Response Rate</CardTitle>
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">94%</div>
-              <p className="text-xs text-muted-foreground mt-1">Últimas 24 horas</p>
+              <p className="text-xs text-muted-foreground mt-1">Last 24 hours</p>
             </CardContent>
           </Card>
         </div>
@@ -186,7 +186,7 @@ const Leads = () => {
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar por nombre, email o teléfono..."
+                    placeholder="Search by name, email or phone..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -195,17 +195,17 @@ const Leads = () => {
                 <Select value={estadoFilter} onValueChange={setEstadoFilter}>
                   <SelectTrigger className="w-full md:w-[200px]">
                     <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Estado" />
+                    <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="nuevo">Nuevo</SelectItem>
-                    <SelectItem value="seguimiento">En seguimiento</SelectItem>
-                    <SelectItem value="cualificado">Cualificado</SelectItem>
-                    <SelectItem value="visita">Visita</SelectItem>
-                    <SelectItem value="oferta">Oferta</SelectItem>
-                    <SelectItem value="cerrado">Cerrado</SelectItem>
-                    <SelectItem value="dormido">Dormido</SelectItem>
+                    <SelectItem value="todos">All</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="contacted">Follow-up</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="visit">Visit</SelectItem>
+                    <SelectItem value="offer">Offer</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                    <SelectItem value="sleeping">Sleeping</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -254,7 +254,7 @@ const Leads = () => {
                           </Badge>
                         )}
                         <Badge variant="outline" className="text-xs bg-primary/5 text-primary">
-                          {lead.propiedadesSugeridas} propiedades sugeridas
+                          {lead.propiedadesSugeridas} suggested properties
                         </Badge>
                       </div>
                     </div>
@@ -263,7 +263,7 @@ const Leads = () => {
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => navigate(`/leads/${lead.id}`)}>
                       <Eye className="mr-2 h-4 w-4" />
-                      Ver
+                      View
                     </Button>
                     <Button
                       size="sm"
@@ -272,7 +272,7 @@ const Leads = () => {
                       onClick={() => navigate(`/ai-actions?leadId=${lead.id}`)}
                     >
                       <Sparkles className="mr-2 h-4 w-4" />
-                      Acciones IA
+                      AI Actions
                     </Button>
                   </div>
                 </CardContent>
@@ -280,7 +280,7 @@ const Leads = () => {
             ))}
             {filteredLeads.length === 0 && (
               <div className="text-center py-10 text-muted-foreground">
-                No se encontraron leads.
+                No leads found.
               </div>
             )}
           </div>

@@ -86,14 +86,14 @@ const LeadDetail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lead', id] });
       toast({
-        title: "Lead actualizado",
-        description: "Los cambios se han guardado correctamente.",
+        title: "Lead updated",
+        description: "Changes have been saved successfully.",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "No se pudieron guardar los cambios.",
+        description: "Could not save changes.",
         variant: "destructive",
       });
     }
@@ -109,11 +109,11 @@ const LeadDetail = () => {
   };
 
   if (isLoadingLead) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando lead...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading lead...</div>;
   }
 
   if (!lead) {
-    return <div className="flex justify-center items-center min-h-screen">Lead no encontrado</div>;
+    return <div className="flex justify-center items-center min-h-screen">Lead not found</div>;
   }
 
   // Flatten messages from all conversations and sort by timestamp
@@ -128,20 +128,20 @@ const LeadDetail = () => {
       <div className="container mx-auto p-6">
         <Button variant="ghost" onClick={() => navigate("/leads")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a Leads
+          Back to Leads
         </Button>
 
         {/* Header Card */}
-        <Card className="shadow-card mb-6">
+        <Card id="lead-header-card" className="shadow-card mb-6" >
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold">{lead.name}</h1>
                   <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                    {lead.status || "Nuevo"}
+                    {lead.status.charAt(0).toUpperCase() + lead.status.slice(1) || "New"}
                   </Badge>
-                  <Badge variant="outline" className="bg-muted">{lead.language || "ES"}</Badge>
+                  <Badge variant="outline" className="bg-muted">{lead.language.charAt(0).toUpperCase() + lead.language.slice(1) || "ES"}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -156,26 +156,26 @@ const LeadDetail = () => {
                   )}
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" />
-                    {lead.source || "Portal Inmobiliario"}
+                    {lead.source || "Real Estate Portal"}
                   </span>
                 </div>
               </div>
               <div className="flex gap-2">
-                <Select defaultValue={lead.status?.toLowerCase() || "nuevo"}>
+                <Select defaultValue={lead.status?.charAt(0).toUpperCase() || "New"}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="nuevo">Nuevo</SelectItem>
-                    <SelectItem value="seguimiento">En seguimiento</SelectItem>
-                    <SelectItem value="cualificado">Cualificado</SelectItem>
-                    <SelectItem value="visita">Visita</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="contacted">Follow-up</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="visit">Visit</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" id="lead-info">
               <Badge variant="secondary">
                 <Euro className="mr-1 h-3 w-3" />
                 {lead.budget ? `${lead.budget.toLocaleString()}€` : "N/A"}
@@ -186,7 +186,7 @@ const LeadDetail = () => {
               </Badge>
               <Badge variant="secondary">
                 <Home className="mr-1 h-3 w-3" />
-                {lead.propertyType || "N/A"}
+                {lead.propertyType.charAt(0).toUpperCase() + lead.propertyType.slice(1) || "N/A"}
               </Badge>
               <Badge variant="secondary">
                 <Calendar className="mr-1 h-3 w-3" />
@@ -196,23 +196,23 @@ const LeadDetail = () => {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" id="lead-content">
           {/* Main Content */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="conversacion" className="w-full">
+            <Tabs defaultValue="conversation" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="conversacion">Conversación</TabsTrigger>
-                <TabsTrigger value="datos">Datos</TabsTrigger>
+                <TabsTrigger value="conversation">Conversation</TabsTrigger>
+                <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="matching">Matching</TabsTrigger>
-                <TabsTrigger value="documentos">Documentos</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="conversacion" className="space-y-4 mt-4">
+              <TabsContent value="conversation" className="space-y-4 mt-4" id="lead-conversation">
                 <Card className="shadow-card">
                   <CardContent className="p-6">
                     <div className="space-y-4 mb-6 max-h-[400px] overflow-y-auto">
                       {allMessages.length === 0 ? (
-                        <p className="text-center text-muted-foreground">No hay mensajes todavía.</p>
+                        <p className="text-center text-muted-foreground">No messages yet.</p>
                       ) : (
                         allMessages.map((msg) => (
                           <div key={msg.id} className="space-y-2">
@@ -243,10 +243,10 @@ const LeadDetail = () => {
                       )}
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4" id="lead-conversation-input">
                       <div className="flex gap-2">
                         <Input
-                          placeholder="Escribe un mensaje..."
+                          placeholder="Type a message..."
                           value={messageInput}
                           onChange={(e) => setMessageInput(e.target.value)}
                           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
@@ -272,19 +272,19 @@ const LeadDetail = () => {
                       <div className="grid grid-cols-2 gap-2">
                         <Button variant="outline" size="sm" className="justify-start">
                           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-                          Cualificar lead
+                          Qualify lead
                         </Button>
                         <Button variant="outline" size="sm" className="justify-start">
                           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-                          Proponer 3 propiedades
+                          Propose 3 properties
                         </Button>
                         <Button variant="outline" size="sm" className="justify-start">
                           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-                          Pedir disponibilidad
+                          Request availability
                         </Button>
                         <Button variant="outline" size="sm" className="justify-start">
                           <Sparkles className="mr-2 h-4 w-4 text-primary" />
-                          Reenganchar lead
+                          Re-engage lead
                         </Button>
                       </div>
                     </div>
@@ -292,12 +292,12 @@ const LeadDetail = () => {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="datos" className="space-y-4 mt-4">
+              <TabsContent value="datos" className="space-y-4 mt-4" id="lead-data">
                 <Card className="shadow-card">
                   <CardContent className="p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Nombre</Label>
+                        <Label>Name</Label>
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -311,14 +311,14 @@ const LeadDetail = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Teléfono</Label>
+                        <Label>Phone</Label>
                         <Input
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Idioma</Label>
+                        <Label>Language</Label>
                         <Select
                           value={formData.language}
                           onValueChange={(val) => setFormData({ ...formData, language: val })}
@@ -327,13 +327,13 @@ const LeadDetail = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="es">Español</SelectItem>
+                            <SelectItem value="es">Spanish</SelectItem>
                             <SelectItem value="en">English</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label>Presupuesto</Label>
+                        <Label>Budget</Label>
                         <Input
                           value={formData.budget}
                           onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
@@ -341,14 +341,14 @@ const LeadDetail = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Zona preferida</Label>
+                        <Label>Preferred Zone</Label>
                         <Input
                           value={formData.zone}
                           onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Tipología</Label>
+                        <Label>Type</Label>
                         <Select
                           value={formData.propertyType}
                           onValueChange={(val) => setFormData({ ...formData, propertyType: val })}
@@ -358,16 +358,16 @@ const LeadDetail = () => {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="villa">Villa</SelectItem>
-                            <SelectItem value="apartamento">Apartamento</SelectItem>
-                            <SelectItem value="atico">Ático</SelectItem>
+                            <SelectItem value="apartamento">Apartment</SelectItem>
+                            <SelectItem value="atico">Penthouse</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Notas</Label>
+                      <Label>Notes</Label>
                       <Textarea
-                        placeholder="Añadir notas sobre el lead..."
+                        placeholder="Add notes about the lead..."
                         rows={4}
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -378,13 +378,13 @@ const LeadDetail = () => {
                       onClick={handleUpdateLead}
                       disabled={updateLeadMutation.isPending}
                     >
-                      {updateLeadMutation.isPending ? "Guardando..." : "Guardar cambios"}
+                      {updateLeadMutation.isPending ? "Saving..." : "Save changes"}
                     </Button>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="matching" className="space-y-4 mt-4">
+              <TabsContent value="matching" className="space-y-4 mt-4" id="lead-matching">
                 {properties?.slice(0, 2).map((prop) => (
                   <Card key={prop.id} className="shadow-card hover:shadow-card-hover transition-shadow">
                     <CardContent className="p-4">
@@ -406,16 +406,16 @@ const LeadDetail = () => {
                           </div>
                           <div className="flex gap-4 text-sm text-muted-foreground mb-3">
                             <span>{prop.area}m²</span>
-                            <span>{prop.rooms} dorm</span>
-                            <span>{prop.bathrooms} baños</span>
+                            <span>{prop.rooms} bed</span>
+                            <span>{prop.bathrooms} bath</span>
                           </div>
                           <div className="flex gap-2">
                             <Button size="sm" variant="outline">
-                              Añadir a presentación
+                              Add to presentation
                             </Button>
                             <Button size="sm" className="bg-gradient-primary hover:opacity-90">
                               <MessageSquare className="mr-2 h-3 w-3" />
-                              Enviar por WhatsApp
+                              Send via WhatsApp
                             </Button>
                           </div>
                         </div>
@@ -429,7 +429,7 @@ const LeadDetail = () => {
                 <Card className="shadow-card">
                   <CardContent className="p-6">
                     <p className="text-muted-foreground text-center py-8">
-                      No hay documentos compartidos todavía
+                      No documents shared yet
                     </p>
                   </CardContent>
                 </Card>
@@ -443,45 +443,45 @@ const LeadDetail = () => {
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  Acciones IA Rápidas
+                  Quick AI Actions
                 </h3>
                 <div className="space-y-2">
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    Generar presentación
+                    Generate presentation
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    Solicitar disponibilidad
+                    Request availability
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
-                    Escalar a humano
+                    Escalate to human
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-card">
+            <Card className="shadow-card" id="lead-activity">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">Actividad Reciente</h3>
+                <h3 className="font-semibold mb-4">Recent Activity</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
                     <div>
-                      <p className="text-muted-foreground">Mensaje recibido</p>
-                      <p className="text-xs text-muted-foreground">Hace 2 horas</p>
+                      <p className="text-muted-foreground">Message received</p>
+                      <p className="text-xs text-muted-foreground">2 hours ago</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-success mt-1.5" />
                     <div>
-                      <p className="text-muted-foreground">Lead cualificado por IA</p>
-                      <p className="text-xs text-muted-foreground">Hace 3 horas</p>
+                      <p className="text-muted-foreground">Lead qualified by AI</p>
+                      <p className="text-xs text-muted-foreground">3 hours ago</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
                     <div>
-                      <p className="text-muted-foreground">Lead creado</p>
-                      <p className="text-xs text-muted-foreground">Hace 5 horas</p>
+                      <p className="text-muted-foreground">Lead created</p>
+                      <p className="text-xs text-muted-foreground">5 hours ago</p>
                     </div>
                   </div>
                 </div>

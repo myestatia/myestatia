@@ -19,9 +19,12 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        budget: undefined,
         phone: "",
         language: "es",
         source: "web",
+        zone: "",
+        propertyType: "",
     });
 
     const [errors, setErrors] = useState({
@@ -48,7 +51,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setFormData({ ...formData, [id]: value });
+        setFormData(prev => ({ ...prev, [id]: value }));
         validateField(id, value);
     };
 
@@ -60,7 +63,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                 title: "Lead created",
                 description: "The lead has been successfully created.",
             });
-            setFormData({ name: "", email: "", phone: "", language: "es", source: "web" });
+            setFormData({ name: "", email: "", phone: "", language: "es", source: "web", budget: undefined, zone: "", propertyType: "" });
             setErrors({ email: "", phone: "" });
             onClose();
         },
@@ -93,14 +96,17 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
             return;
         }
 
-        // Check if empty but required (email already checked above structure, but re-run validation if somehow bypassed)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             setErrors(prev => ({ ...prev, email: "Invalid email format." }));
             return;
         }
 
-        createMutation.mutate(formData);
+        const payload = {
+            ...formData,
+            budget: formData.budget ? parseFloat(formData.budget) : 0
+        };
+        createMutation.mutate(payload);
     };
 
     return (
@@ -149,6 +155,63 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                             {errors.phone && <span className="text-red-500 text-xs mt-1 block">{errors.phone}</span>}
                         </div>
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="budget" className="text-right">
+                            Budget *
+                        </Label>
+                        <div className="col-span-3">
+                            <Input
+                                id="budget"
+                                type="text"
+                                value={formData.budget ? new Intl.NumberFormat('es-ES').format(parseFloat(formData.budget.replace(/\./g, ''))) : ''}
+                                onChange={(e) => {
+                                    const rawValue = e.target.value.replace(/\./g, '');
+                                    if (/^\d*$/.test(rawValue)) {
+                                        setFormData(prev => ({ ...prev, budget: rawValue }));
+                                    }
+                                }}
+                                className="col-span-3"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="zone" className="text-right">
+                            Zone
+                        </Label>
+                        <Input
+                            id="zone"
+                            value={formData.zone}
+                            onChange={handleChange}
+                            className="col-span-3"
+                            placeholder="e.g. Marbella, Golden Mile"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="propertyType" className="text-right">
+                            Property Type
+                        </Label>
+                        <Select
+                            value={formData.propertyType}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, propertyType: val }))}
+                        >
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="villa">Villa</SelectItem>
+                                <SelectItem value="apartment">Apartment</SelectItem>
+                                <SelectItem value="penthouse">Penthouse</SelectItem>
+                                <SelectItem value="townhouse">Townhouse</SelectItem>
+                                <SelectItem value="plot">Plot</SelectItem>
+                                <SelectItem value="commercial">Commercial</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+
+
                     {/* Rest of the form stays the same for Language/Source */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="language" className="text-right">
@@ -156,7 +219,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         </Label>
                         <Select
                             value={formData.language}
-                            onValueChange={(val) => setFormData({ ...formData, language: val })}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, language: val }))}
                         >
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select language" />
@@ -166,6 +229,13 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                                 <SelectItem value="en">English</SelectItem>
                                 <SelectItem value="fr">French</SelectItem>
                                 <SelectItem value="de">German</SelectItem>
+                                <SelectItem value="it">Italian</SelectItem>
+                                <SelectItem value="pt">Portuguese</SelectItem>
+                                <SelectItem value="ru">Russian</SelectItem>
+                                <SelectItem value="zh">Chinese</SelectItem>
+                                <SelectItem value="ja">Japanese</SelectItem>
+                                <SelectItem value="ko">Korean</SelectItem>
+                                <SelectItem value="ar">Arabic</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -175,7 +245,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         </Label>
                         <Select
                             value={formData.source}
-                            onValueChange={(val) => setFormData({ ...formData, source: val })}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, source: val }))}
                         >
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select source" />

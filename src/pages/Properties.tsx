@@ -56,8 +56,8 @@ const Properties = () => {
     m2: prop.area ? `${prop.area}m²` : "N/A",
     dormitorios: prop.rooms || 0,
     banos: prop.bathrooms || 0,
-    estado: prop.status || "Disponible",
-    fuente: prop.source || "Propio",
+    estado: prop.status?.charAt(0).toUpperCase() + prop.status?.slice(1) || "Available",
+    fuente: prop.source?.charAt(0).toUpperCase() + prop.source?.slice(1) || "Owned",
     leadsCompatibles: prop.compatibleLeadsCount || 0,
     nueva: prop.isNew || false
   })) || [];
@@ -66,11 +66,11 @@ const Properties = () => {
   const finalProperties = properties;
 
   if (isLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando propiedades...</div>;
+    return <div className="flex justify-center items-center min-h-screen">Loading properties...</div>;
   }
 
   if (error) {
-    return <div className="flex justify-center items-center min-h-screen text-red-500">Error al cargar propiedades</div>;
+    return <div className="flex justify-center items-center min-h-screen text-red-500">Error loading properties</div>;
   }
 
   return (
@@ -79,52 +79,52 @@ const Properties = () => {
 
       <div className="container mx-auto p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6" id="properties-header">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Propiedades</h1>
-            <p className="text-muted-foreground">Gestiona tu inventario y conecta con leads compatibles</p>
+            <h1 className="text-3xl font-bold mb-2">Properties</h1>
+            <p className="text-muted-foreground">Manage your inventory and connect with compatible leads</p>
           </div>
           <Button className="bg-gradient-primary hover:opacity-90" onClick={handleAddProperty}>
             <Plus className="mr-2 h-4 w-4" />
-            Añadir Propiedad
+            Add Property
           </Button>
         </div>
 
         {/* Filters */}
-        <Card className="mb-6 shadow-card">
+        <Card className="mb-6 shadow-card" id="properties-filters">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar propiedades..."
+                  placeholder="Search properties..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              <Select defaultValue="todos">
+              <Select defaultValue="all">
                 <SelectTrigger className="w-full md:w-[180px]">
                   <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Fuente" />
+                  <SelectValue placeholder="Source" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todas las fuentes</SelectItem>
-                  <SelectItem value="propio">Propio</SelectItem>
+                  <SelectItem value="all">All sources</SelectItem>
+                  <SelectItem value="owned">Owned</SelectItem>
                   <SelectItem value="resales">RESALES</SelectItem>
                   <SelectItem value="inmobalia">Inmobalia</SelectItem>
                   <SelectItem value="mls">MLS USA</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="todos">
+              <Select defaultValue="all">
                 <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Estado" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="disponible">Disponible</SelectItem>
-                  <SelectItem value="reservada">Reservada</SelectItem>
-                  <SelectItem value="vendida">Vendida</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="available">Available</SelectItem>
+                  <SelectItem value="reserved">Reserved</SelectItem>
+                  <SelectItem value="sold">Sold</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -132,7 +132,7 @@ const Properties = () => {
         </Card>
 
         {/* Properties Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="properties-grid">
           {finalProperties.map((property) => (
             <Card key={property.id} className="shadow-card hover:shadow-card-hover transition-all overflow-hidden">
               <div className="relative">
@@ -143,7 +143,7 @@ const Properties = () => {
                 />
                 {property.nueva && (
                   <Badge className="absolute top-3 right-3 bg-success text-success-foreground">
-                    Nueva
+                    New
                   </Badge>
                 )}
                 <Badge className="absolute top-3 left-3 bg-background/90 text-foreground">
@@ -193,14 +193,14 @@ const Properties = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2" id="property-actions">
                   <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/properties/${property.id}`)}>
                     <Eye className="mr-2 h-3 w-3" />
-                    Ver
+                    View
                   </Button>
                   <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
                     <Send className="mr-2 h-3 w-3" />
-                    Enviar
+                    Send
                   </Button>
                 </div>
               </CardContent>
@@ -208,7 +208,7 @@ const Properties = () => {
           ))}
           {finalProperties.length === 0 && (
             <div className="col-span-full text-center py-10 text-muted-foreground">
-              No se encontraron propiedades.
+              No properties found.
             </div>
           )}
         </div>

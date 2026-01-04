@@ -13,67 +13,67 @@ import { useToast } from "@/hooks/use-toast";
 const integrations = [
   {
     id: "email",
-    nombre: "Email",
-    descripcion: "Conecta tu cuenta de email para enviar y recibir mensajes automáticamente",
+    name: "Email",
+    description: "Connect your email account to automatically send and receive messages",
     logo: "✉️",
-    estado: "desconectado",
-    categoria: "Email"
+    status: "disconnected",
+    category: "Email"
   },
   {
     id: "resales",
-    nombre: "RESALES",
-    descripcion: "MLS España - Portal líder de propiedades en la Costa del Sol",
+    name: "RESALES",
+    description: "MLS Spain - Leading property portal in Costa del Sol",
     logo: "🏠",
-    estado: "desconectado",
-    categoria: "MLS"
+    status: "disconnected",
+    category: "MLS"
   },
   {
     id: "kommo",
-    nombre: "Kommo",
-    descripcion: "CRM especializado en mensajería para inmobiliarias",
+    name: "Kommo",
+    description: "CRM specialized in messaging for real estate",
     logo: "💬",
-    estado: "desconectado",
-    categoria: "CRM"
+    status: "disconnected",
+    category: "CRM"
   },
   {
     id: "inmobalia",
-    nombre: "Inmobalia",
-    descripcion: "Software de gestión inmobiliaria integral",
+    name: "Inmobalia",
+    description: "Comprehensive real estate management software",
     logo: "🏢",
-    estado: "desconectado",
-    categoria: "CRM"
+    status: "disconnected",
+    category: "CRM"
   },
   {
     id: "mls-usa",
-    nombre: "MLS USA",
-    descripcion: "RESO Web API - Acceso a listados MLS de Estados Unidos",
+    name: "MLS USA",
+    description: "RESO Web API - Access to USA MLS listings",
     logo: "🇺🇸",
-    estado: "desconectado",
-    categoria: "MLS"
+    status: "disconnected",
+    category: "MLS"
   },
   {
     id: "habihub",
-    nombre: "Habihub",
-    descripcion: "MLS de obra nueva - Gestión de propiedades en desarrollo",
+    name: "Habihub",
+    description: "New build MLS - Development property management",
     logo: "🏗️",
-    estado: "desconectado",
-    categoria: "MLS"
+    status: "disconnected",
+    category: "MLS"
   },
   {
     id: "propertybase",
-    nombre: "Propertybase",
-    descripcion: "CRM inmobiliario basado en Salesforce",
+    name: "Propertybase",
+    description: "Real estate CRM based on Salesforce",
     logo: "⚡",
-    estado: "desconectado",
-    categoria: "CRM"
+    status: "disconnected",
+    category: "CRM"
   },
   {
     id: "hubspot",
-    nombre: "HubSpot",
-    descripcion: "Plataforma CRM y marketing todo en uno",
+    name: "HubSpot",
+    description: "All-in-one CRM and marketing platform",
     logo: "🔶",
-    estado: "desconectado",
-    categoria: "CRM"
+    status: "disconnected",
+    category: "CRM"
   }
 ];
 
@@ -89,22 +89,22 @@ const Integrations = () => {
     setTimeout(() => {
       setTesting(false);
       toast({
-        title: "Conexión exitosa",
-        description: "La integración se ha configurado correctamente",
+        title: "Connection successful",
+        description: "The integration has been successfully configured",
       });
     }, 2000);
   };
 
-  const getEstadoBadge = (estado: string) => {
-    if (estado === "conectado") {
+  const getStatusBadge = (status: string) => {
+    if (status === "connected") {
       return (
         <Badge className="bg-success/10 text-success border-success/20">
           <CheckCircle2 className="mr-1 h-3 w-3" />
-          Conectado
+          Connected
         </Badge>
       );
     }
-    if (estado === "error") {
+    if (status === "error") {
       return (
         <Badge variant="destructive">
           <AlertCircle className="mr-1 h-3 w-3" />
@@ -114,7 +114,7 @@ const Integrations = () => {
     }
     return (
       <Badge variant="outline" className="bg-muted">
-        Desconectado
+        Disconnected
       </Badge>
     );
   };
@@ -122,12 +122,12 @@ const Integrations = () => {
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <Header />
-      
+
       <div className="container mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold mb-2">Integraciones</h1>
+          <h1 className="text-3xl font-bold mb-2">Integrations</h1>
           <p className="text-muted-foreground">
-            Conecta tus herramientas favoritas para automatizar tu flujo de trabajo con IA
+            Connect your favorite tools to automate your workflow with AI
           </p>
         </div>
 
@@ -137,11 +137,11 @@ const Integrations = () => {
               <CardHeader>
                 <div className="flex items-start justify-between mb-2">
                   <div className="text-4xl mb-2">{integration.logo}</div>
-                  {getEstadoBadge(integration.estado)}
+                  {getStatusBadge(integration.status)}
                 </div>
-                <CardTitle className="text-xl">{integration.nombre}</CardTitle>
+                <CardTitle className="text-xl">{integration.name}</CardTitle>
                 <CardDescription className="text-sm">
-                  {integration.descripcion}
+                  {integration.description}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -153,52 +153,52 @@ const Integrations = () => {
                       onClick={() => setSelectedIntegration(integration.id)}
                     >
                       <Settings className="mr-2 h-4 w-4" />
-                      Configurar
+                      Configure
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <span className="text-2xl">{integration.logo}</span>
-                        Configurar {integration.nombre}
+                        Configure {integration.name}
                       </DialogTitle>
                       <DialogDescription>
-                        Conecta {integration.nombre} para sincronizar leads y propiedades automáticamente
+                        Connect {integration.name} to automatically sync leads and properties
                       </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-6 py-4">
-                      {/* Credenciales */}
+                      {/* Credentials */}
                       <div className="space-y-4">
-                        <h3 className="font-semibold">Credenciales</h3>
+                        <h3 className="font-semibold">Credentials</h3>
                         <div className="space-y-2">
                           <Label htmlFor="apiKey">API Key</Label>
                           <Input
                             id="apiKey"
                             type="password"
-                            placeholder="Ingresa tu API Key"
+                            placeholder="Enter your API Key"
                             value={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
                           />
                         </div>
-                        {integration.categoria === "Email" && (
+                        {integration.category === "Email" && (
                           <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
                             <Input
                               id="email"
                               type="email"
-                              placeholder="tu@email.com"
+                              placeholder="you@email.com"
                               value={urlBase}
                               onChange={(e) => setUrlBase(e.target.value)}
                             />
                           </div>
                         )}
-                        {integration.categoria === "MLS" && (
+                        {integration.category === "MLS" && (
                           <div className="space-y-2">
-                            <Label htmlFor="urlBase">URL Base (opcional)</Label>
+                            <Label htmlFor="urlBase">Base URL (optional)</Label>
                             <Input
                               id="urlBase"
-                              placeholder="https://api.ejemplo.com"
+                              placeholder="https://api.example.com"
                               value={urlBase}
                               onChange={(e) => setUrlBase(e.target.value)}
                             />
@@ -210,16 +210,16 @@ const Integrations = () => {
                           disabled={testing}
                         >
                           <Plug className="mr-2 h-4 w-4" />
-                          {testing ? "Probando conexión..." : "Probar conexión"}
+                          {testing ? "Testing connection..." : "Test connection"}
                         </Button>
                       </div>
 
-                      {/* Módulos - Solo para CRM y MLS */}
-                      {integration.categoria !== "Email" && (
+                      {/* Modules - Only for CRM and MLS */}
+                      {integration.category !== "Email" && (
                         <div className="space-y-4">
-                          <h3 className="font-semibold">Módulos a sincronizar</h3>
+                          <h3 className="font-semibold">Modules to sync</h3>
                           <div className="space-y-3">
-                            {integration.categoria === "CRM" && (
+                            {integration.category === "CRM" && (
                               <>
                                 <div className="flex items-center space-x-2">
                                   <Checkbox id="leads" defaultChecked />
@@ -230,22 +230,22 @@ const Integrations = () => {
                                 <div className="flex items-center space-x-2">
                                   <Checkbox id="properties" defaultChecked />
                                   <label htmlFor="properties" className="text-sm cursor-pointer">
-                                    Propiedades (sincronización bidireccional)
+                                    Properties (two-way sync)
                                   </label>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <Checkbox id="activities" />
                                   <label htmlFor="activities" className="text-sm cursor-pointer">
-                                    Actividades y Notas
+                                    Activities and Notes
                                   </label>
                                 </div>
                               </>
                             )}
-                            {integration.categoria === "MLS" && (
+                            {integration.category === "MLS" && (
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="properties" defaultChecked />
                                 <label htmlFor="properties" className="text-sm cursor-pointer">
-                                  Propiedades (sincronización automática)
+                                  Properties (auto-sync)
                                 </label>
                               </div>
                             )}
@@ -253,67 +253,67 @@ const Integrations = () => {
                         </div>
                       )}
 
-                      {/* Eventos IA */}
+                      {/* AI Events */}
                       <div className="space-y-4">
-                        <h3 className="font-semibold">Eventos que disparan IA</h3>
+                        <h3 className="font-semibold">AI Trigger Events</h3>
                         <div className="space-y-3">
-                          {integration.categoria === "CRM" && (
+                          {integration.category === "CRM" && (
                             <>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="newLead" defaultChecked />
                                 <label htmlFor="newLead" className="text-sm cursor-pointer">
-                                  Nuevo lead → Cualificar y contactar automáticamente
+                                  New lead → Automatically qualify and contact
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="newProperty" defaultChecked />
                                 <label htmlFor="newProperty" className="text-sm cursor-pointer">
-                                  Nueva propiedad → Detectar leads compatibles y contactar
+                                  New property → Detect matching leads and contact
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="birthday" />
                                 <label htmlFor="birthday" className="text-sm cursor-pointer">
-                                  Cumpleaños/fecha clave → Mensaje personalizado
+                                  Birthday/Key date → Personalized message
                                 </label>
                               </div>
                             </>
                           )}
-                          {integration.categoria === "MLS" && (
+                          {integration.category === "MLS" && (
                             <>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="newProperty" defaultChecked />
                                 <label htmlFor="newProperty" className="text-sm cursor-pointer">
-                                  Nueva propiedad → Detectar leads compatibles y contactar
+                                  New property → Detect matching leads and contact
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="statusChange" />
                                 <label htmlFor="statusChange" className="text-sm cursor-pointer">
-                                  Cambio de estado de propiedad → Notificar a leads interesados
+                                  Property status change → Notify interested leads
                                 </label>
                               </div>
                             </>
                           )}
-                          {integration.categoria === "Email" && (
+                          {integration.category === "Email" && (
                             <>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="portalLeads" defaultChecked />
                                 <label htmlFor="portalLeads" className="text-sm cursor-pointer">
-                                  Leads de portales inmobiliarios
+                                  Real estate portal leads
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Checkbox id="campaignLeads" defaultChecked />
                                 <label htmlFor="campaignLeads" className="text-sm cursor-pointer">
-                                  Leads de campañas digitales
+                                  Digital campaign leads
                                 </label>
                               </div>
                               <div className="space-y-2 mt-4">
-                                <Label htmlFor="customPrompt">Prompt personalizado (opcional)</Label>
+                                <Label htmlFor="customPrompt">Custom prompt (optional)</Label>
                                 <Input
                                   id="customPrompt"
-                                  placeholder="Ej: Detectar idioma y responder en ese idioma..."
+                                  placeholder="e.g.: Detect language and reply in that language..."
                                 />
                               </div>
                             </>
@@ -323,7 +323,7 @@ const Integrations = () => {
 
                       <div className="flex gap-2 pt-4">
                         <Button className="flex-1 bg-gradient-primary hover:opacity-90">
-                          Guardar configuración
+                          Save configuration
                         </Button>
                       </div>
                     </div>

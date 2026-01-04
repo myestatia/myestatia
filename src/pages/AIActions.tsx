@@ -13,7 +13,7 @@ const mockLeads = [
     nombre: "Carlos Martínez",
     email: "carlos@email.com",
     telefono: "+34 612 345 678",
-    estado: "Nuevo",
+    estado: "New",
     idioma: "ES",
     origen: "Portal",
     presupuesto: "400-500K",
@@ -25,24 +25,24 @@ const mockLeads = [
     nombre: "Sarah Johnson",
     email: "sarah.j@email.com",
     telefono: "",
-    estado: "En seguimiento",
+    estado: "Follow-up",
     idioma: "EN",
     origen: "Web",
     presupuesto: "800K-1M",
     zona: "Golden Mile",
-    tipologia: "Apartamento",
+    tipologia: "Apartment",
   },
   {
     id: "3",
     nombre: "Miguel Rodríguez",
     email: "miguel.r@email.com",
     telefono: "+34 623 456 789",
-    estado: "Cualificado",
+    estado: "Qualified",
     idioma: "ES",
     origen: "Inmobalia",
     presupuesto: "600-700K",
     zona: "Sierra Blanca",
-    tipologia: "Apartamento",
+    tipologia: "Apartment",
   },
 ];
 
@@ -64,7 +64,7 @@ const AIActions = () => {
         setMessages([
           {
             role: "assistant",
-            content: `📊 **Resumen del Lead: ${lead.nombre}**\n\n**Estado actual:** ${lead.estado}\n**Presupuesto:** ${lead.presupuesto}\n**Zona de interés:** ${lead.zona}\n**Tipología:** ${lead.tipologia}\n**Idioma:** ${lead.idioma}\n**Canal de contacto:** ${lead.telefono ? "WhatsApp disponible" : "Solo email (solicitar teléfono)"}\n\n**Sugerencias:**\n• Cualificar mejor: preguntar timing y financiación\n• Enviar 3 propiedades que encajen con su perfil\n• Agendar llamada de seguimiento en las próximas 48h\n\n¿En qué puedo ayudarte con este lead?`,
+            content: `📊 **Lead Summary: ${lead.nombre}**\n\n**Current Status:** ${lead.estado}\n**Budget:** ${lead.presupuesto}\n**Interested Zone:** ${lead.zona}\n**Type:** ${lead.tipologia}\n**Language:** ${lead.idioma}\n**Contact Channel:** ${lead.telefono ? "WhatsApp available" : "Email only (request phone)"}\n\n**Suggestions:**\n• Better qualification: ask for timing and financing\n• Send 3 properties matching their profile\n• Schedule follow-up call in next 48h\n\nHow can I help you with this lead?`,
           },
         ]);
       }
@@ -80,7 +80,7 @@ const AIActions = () => {
     setTimeout(() => {
       const assistantMessage: Message = {
         role: "assistant",
-        content: "Entendido. Estoy procesando tu solicitud y generando las acciones correspondientes. En un momento tendrás los resultados.",
+        content: "Understood. I'm processing your request and generating the corresponding actions. Results will be ready in a moment.",
       };
       setMessages((prev) => [...prev, assistantMessage]);
     }, 1000);
@@ -103,10 +103,10 @@ const AIActions = () => {
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
             <Sparkles className="h-8 w-8 text-primary" />
-            Acciones IA
+            AI Actions
           </h1>
           <p className="text-muted-foreground">
-            Pídele al agente cualquier acción sobre tus datos: cualificar leads, enviar propiedades, generar presentaciones...
+            Ask the agent for any action on your data: qualify leads, send properties, generate presentations...
           </p>
         </div>
 
@@ -117,17 +117,16 @@ const AIActions = () => {
               {messages.length === 0 && (
                 <div className="text-center text-muted-foreground py-20">
                   <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary opacity-50" />
-                  <p className="text-lg">¿En qué puedo ayudarte hoy?</p>
-                  <p className="text-sm mt-2">Escribe tu solicitud o usa las sugerencias de abajo</p>
+                  <p className="text-lg">How can I help you today?</p>
+                  <p className="text-sm mt-2">Type your request or use the suggestions below</p>
                 </div>
               )}
 
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex gap-3 ${
-                    message.role === "user" ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {message.role === "assistant" && (
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center">
@@ -135,11 +134,10 @@ const AIActions = () => {
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
-                      message.role === "user"
+                    className={`max-w-[80%] rounded-lg p-4 ${message.role === "user"
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted"
-                    }`}
+                      }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -154,7 +152,7 @@ const AIActions = () => {
 
             <div className="flex gap-2">
               <Textarea
-                placeholder="Escribe tu solicitud... (ej: 'Cualifica al lead Carlos Martínez y envíale 3 propiedades')"
+                placeholder="Type your request... (e.g. 'Qualify lead Carlos Martínez and send 3 properties')"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -177,62 +175,62 @@ const AIActions = () => {
           </CardContent>
         </Card>
 
-        {/* Sugerencias IA */}
+        {/* AI Suggestions */}
         <Card className="shadow-ai">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Sugerencias IA
+              AI Suggestions
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="p-4 rounded-lg border border-border bg-card">
               <p className="text-sm mb-3">
-                Tienes <span className="font-semibold text-primary">8 leads</span> sin respuesta en las últimas 24h
+                You have <span className="font-semibold text-primary">8 leads</span> without response in the last 24h
               </p>
               <div className="flex gap-2">
                 <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                  Aprobar
+                  Approve
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1">
-                  Editar
+                  Edit
                 </Button>
               </div>
             </div>
 
             <div className="p-4 rounded-lg border border-border bg-card">
               <p className="text-sm mb-3">
-                Nuevas propiedades encajan con <span className="font-semibold text-primary">12 leads</span>
+                New properties match with <span className="font-semibold text-primary">12 leads</span>
               </p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" className="flex-1">
-                  Previsualizar
+                  Preview
                 </Button>
                 <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                  Enviar
+                  Send
                 </Button>
               </div>
             </div>
 
             <div className="p-4 rounded-lg border border-border bg-card">
               <p className="text-sm mb-3">
-                <span className="font-semibold text-primary">3 leads</span> con alta probabilidad de conversión
+                <span className="font-semibold text-primary">3 leads</span> with high conversion probability
               </p>
               <Button size="sm" variant="outline" className="w-full">
-                Ver detalles
+                View details
               </Button>
             </div>
 
             <div className="p-4 rounded-lg border border-border bg-card">
               <p className="text-sm mb-3">
-                <span className="font-semibold text-primary">5 leads</span> llevan más de 3 días sin contacto
+                <span className="font-semibold text-primary">5 leads</span> haven't been contacted in 3+ days
               </p>
               <div className="flex gap-2">
                 <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                  Reactivar
+                  Reactivate
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1">
-                  Revisar
+                  Review
                 </Button>
               </div>
             </div>

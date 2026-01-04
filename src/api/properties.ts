@@ -20,6 +20,7 @@ export interface Property {
     zone?: string;
     energyCertificate?: string;
     yearBuilt?: number;
+    type?: string;
 }
 
 export interface PropertyFilters {

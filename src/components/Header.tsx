@@ -39,25 +39,25 @@ const Header = () => {
             onClick={() => navigate("/properties")}
             className="text-sm"
           >
-            Propiedades
+            Properties
           </Button>
           <Button
             variant={location.pathname === "/integrations" ? "secondary" : "ghost"}
             onClick={() => navigate("/integrations")}
             className="text-sm"
           >
-            Integraciones
+            Integrations
           </Button>
         </nav>
 
         <div className="flex-1" />
 
-        <Button 
+        <Button
           className="bg-gradient-primary hover:opacity-90 shadow-ai"
           onClick={() => navigate("/ai-actions")}
         >
           <Sparkles className="mr-2 h-4 w-4" />
-          Acciones IA
+          AI Actions
         </Button>
 
         <DropdownMenu>
@@ -67,16 +67,16 @@ const Header = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
-              <span>Perfil</span>
+              <span>Profile</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Cerrar Sesión</span>
+              <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
