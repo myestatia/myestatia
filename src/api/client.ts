@@ -5,7 +5,8 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 export const client = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    // Axios sets Content-Type to application/json automatically for objects
+    // We remove explicit default to allow FormData to work correctly
   },
 });
 
@@ -43,13 +44,26 @@ export const fetchClient = async <T>(endpoint: string, options?: RequestInit): P
   // Adapter for existing code using fetchClient style
   // We map the fetch options to axios config
   const method = options?.method || 'GET';
-  const data = options?.body ? JSON.parse(options.body as string) : undefined;
+  let data = options?.body;
+
+  // Handle existing usage where body is passed as JSON string
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      // If parse fails or it's just a raw string, leave it.
+    }
+  }
+
+  // If data is FormData, axios handles Content-Type automatically (sets boundary).
+  // If data is object, axios sets application/json.
+  const headers = { ...options?.headers } as any;
 
   const response = await client.request({
     url: endpoint,
     method,
     data,
-    // headers: options?.headers as any, // Axios handles headers mostly
+    headers,
   });
   return response.data;
 };

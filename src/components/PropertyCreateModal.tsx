@@ -16,10 +16,32 @@ interface PropertyCreateModalProps {
 const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
     const queryClient = useQueryClient();
     const { toast } = useToast();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<{
+        title: string;
+        price: string;
+        description: string;
+        zone: string;
+        address: string;
+        city: string;
+        province: string;
+        rooms: string;
+        bathrooms: string;
+        area: string;
+        status: string;
+        type: string;
+        subtypeId: string;
+        yearBuilt: string;
+        energyCertificate: string;
+        image: File | null;
+        isNew: boolean;
+    }>({
         title: "",
         price: "",
+        description: "",
         zone: "",
+        address: "",
+        city: "",
+        province: "",
         rooms: "",
         bathrooms: "",
         area: "",
@@ -28,6 +50,8 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
         subtypeId: "",
         yearBuilt: "",
         energyCertificate: "",
+        image: null,
+        isNew: false,
     });
 
     const { data: subtypes, isLoading: isLoadingSubtypes } = useQuery({
@@ -37,15 +61,19 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: any) => createProperty({
-            ...data,
-            price: data.price ? parseFloat(data.price) : 0,
-            rooms: data.rooms ? parseInt(data.rooms) : 0,
-            bathrooms: data.bathrooms ? parseInt(data.bathrooms) : 0,
-            area: data.area ? parseFloat(data.area) : 0,
-            yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : 0,
-            energyCertificate: data.energyCertificate || "",
-        }),
+        mutationFn: (data: any) => {
+            const { image, ...rest } = data;
+            const propertyData = {
+                ...rest,
+                price: rest.price ? parseFloat(rest.price) : 0,
+                rooms: rest.rooms ? parseInt(rest.rooms) : 0,
+                bathrooms: rest.bathrooms ? parseInt(rest.bathrooms) : 0,
+                area: rest.area ? parseFloat(rest.area) : 0,
+                yearBuilt: rest.yearBuilt ? parseInt(rest.yearBuilt) : 0,
+                energyCertificate: rest.energyCertificate || "",
+            };
+            return createProperty(propertyData, image);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["properties"] });
             toast({
@@ -55,7 +83,11 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
             setFormData({
                 title: "",
                 price: "",
+                description: "",
                 zone: "",
+                address: "",
+                city: "",
+                province: "",
                 rooms: "",
                 bathrooms: "",
                 area: "",
@@ -63,7 +95,9 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                 type: "",
                 subtypeId: "",
                 yearBuilt: "",
-                energyCertificate: ""
+                energyCertificate: "",
+                image: null,
+                isNew: false,
             });
             onClose();
         },
@@ -90,11 +124,11 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Add New Property</DialogTitle>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
+                <div id="property-form" className="grid gap-4 py-4 overflow-y-auto px-1">
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="title" className="text-right">
                             Title *
@@ -125,7 +159,58 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-description">
+                        <Label htmlFor="description" className="text-right">Description</Label>
+                        <textarea
+                            id="description"
+                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 col-span-3"
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-image">
+                        <Label htmlFor="image" className="text-right">Image</Label>
+                        <Input
+                            id="image"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    setFormData({ ...formData, image: file });
+                                }
+                            }}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-address">
+                        <Label htmlFor="address" className="text-right">Address</Label>
+                        <Input
+                            id="address"
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-city">
+                        <Label htmlFor="city" className="text-right">City</Label>
+                        <Input
+                            id="city"
+                            value={formData.city}
+                            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-province">
+                        <Label htmlFor="province" className="text-right">Province</Label>
+                        <Input
+                            id="province"
+                            value={formData.province}
+                            onChange={(e) => setFormData({ ...formData, province: e.target.value })}
+                            className="col-span-3"
+                        />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-zone">
                         <Label htmlFor="zone" className="text-right">
                             Zone
                         </Label>
@@ -136,7 +221,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-area">
                         <Label htmlFor="area" className="text-right">
                             Area (m²)
                         </Label>
@@ -148,7 +233,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-rooms">
                         <Label htmlFor="rooms" className="text-right">
                             Rooms
                         </Label>
@@ -160,7 +245,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-bathrooms">
                         <Label htmlFor="bathrooms" className="text-right">
                             Baths
                         </Label>
@@ -172,7 +257,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-year-built">
                         <Label htmlFor="yearBuilt" className="text-right">
                             Year Built
                         </Label>
@@ -184,8 +269,8 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="energyCertificate" className="text-right">Energy Certificate</Label>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-energy-certificate">
+                        <Label htmlFor="energyCertificate" className="text-right">Energy Cert.</Label>
                         <Input
                             id="energyCertificate"
                             type="text"
@@ -194,13 +279,12 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                             className="col-span-3"
                         />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-type">
                         <Label htmlFor="type" className="text-right">Type</Label>
                         <Select
                             value={formData.type}
                             onValueChange={(val) => {
                                 setFormData({ ...formData, type: val, subtypeId: "" });
-                                // React Query will automatically fetch new subtypes based on this state change if we use useQuery dependent key
                             }}
                         >
                             <SelectTrigger className="col-span-3">
@@ -215,7 +299,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                         </Select>
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-subtype">
                         <Label htmlFor="subtype" className="text-right">Subtype</Label>
                         <Select
                             value={formData.subtypeId}
@@ -233,7 +317,7 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                         </Select>
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-status">
                         <Label htmlFor="status" className="text-right">
                             Status
                         </Label>
@@ -250,6 +334,21 @@ const PropertyCreateModal = ({ isOpen, onClose }: PropertyCreateModalProps) => {
                                 <SelectItem value="sold">Sold</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4" id="property-is-new">
+                        <Label htmlFor="isNew" className="text-right">
+                            New Property
+                        </Label>
+                        <div className="flex items-center space-x-2 col-span-3">
+                            <input
+                                type="checkbox"
+                                id="isNew"
+                                checked={formData.isNew}
+                                onChange={(e) => setFormData({ ...formData, isNew: e.target.checked })}
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                            <span className="text-sm text-muted-foreground">Yes</span>
+                        </div>
                     </div>
                 </div>
                 <DialogFooter>

@@ -49,10 +49,18 @@ export const getProperty = async (id: string): Promise<Property> => {
     return fetchClient<Property>(`/properties/${id}`);
 };
 
-export const createProperty = async (data: Partial<Property>): Promise<Property> => {
+export const createProperty = async (data: Partial<Property>, imageFile?: File): Promise<Property> => {
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(data));
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+
     return fetchClient<Property>('/properties', {
         method: 'POST',
-        body: JSON.stringify(data),
+        body: formData,
+        // checks for headers and removes Content-Type to let browser set boundary
+        headers: {},
     });
 };
 
