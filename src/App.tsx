@@ -11,6 +11,7 @@ import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
 import Integrations from "./pages/Integrations";
 import AIActions from "./pages/AIActions";
+import PublicPropertyDetail from "./pages/PublicPropertyDetail";
 import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/properties/:id" element={<ProtectedRoute><PropertyDetail /></ProtectedRoute>} />
             <Route path="/integrations" element={<ProtectedRoute><Integrations /></ProtectedRoute>} />
             <Route path="/ai-actions" element={<ProtectedRoute><AIActions /></ProtectedRoute>} />
+            <Route path="/p/:id" element={<PublicPropertyDetail />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -12,6 +12,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getProperties } from "@/api/properties";
 import PropertyCreateModal from "@/components/PropertyCreateModal";
 import { useDebounce } from "@/hooks/use-debounce";
+import ShareDialog from "@/components/property/ShareDialog";
+import { Property } from "@/api/properties";
 
 const Properties = () => {
   const navigate = useNavigate();
@@ -59,7 +61,8 @@ const Properties = () => {
     estado: prop.status?.charAt(0).toUpperCase() + prop.status?.slice(1) || "Available",
     fuente: prop.source?.charAt(0).toUpperCase() + prop.source?.slice(1) || "Owned",
     leadsCompatibles: prop.compatibleLeadsCount || 0,
-    nueva: prop.isNew || false
+    nueva: prop.isNew || false,
+    original: prop
   })) || [];
 
   /* Client-side filtering removed in favor of API search */
@@ -198,10 +201,12 @@ const Properties = () => {
                     <Eye className="mr-2 h-3 w-3" />
                     View
                   </Button>
-                  <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
-                    <Send className="mr-2 h-3 w-3" />
-                    Send
-                  </Button>
+                  <ShareDialog property={property.original as Property}>
+                    <Button size="sm" className="flex-1 bg-gradient-primary hover:opacity-90">
+                      <Send className="mr-2 h-3 w-3" />
+                      Send
+                    </Button>
+                  </ShareDialog>
                 </div>
               </CardContent>
             </Card>
