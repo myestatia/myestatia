@@ -48,18 +48,35 @@ const PropertyTabs = ({
 
                         <div className="mt-6">
                             <h3 className="font-semibold mb-3">Features</h3>
-                            <div className="grid grid-cols-2 gap-y-2 text-sm">
+                            <div className="grid grid-cols-2 gap-y-2 gap-x-12 text-sm"> {/* Added gap-x-12 for separation */}
                                 <div className="flex justify-between border-b pb-2">
                                     <span className="text-muted-foreground">Property Type</span>
-                                    <span>Villa</span>
+                                    <span>{property.type || "Villa"}</span>
                                 </div>
                                 <div className="flex justify-between border-b pb-2">
                                     <span className="text-muted-foreground">Energy Certificate</span>
-                                    <span>Pending</span>
+                                    {isEditing ? (
+                                        <input
+                                            className="w-20 text-right border rounded px-1"
+                                            value={formData.energyCertificate || ""}
+                                            onChange={(e) => setFormData({ ...formData, energyCertificate: e.target.value })}
+                                        />
+                                    ) : (
+                                        <span>{property.energyCertificate || "Pending"}</span>
+                                    )}
                                 </div>
                                 <div className="flex justify-between border-b pb-2">
                                     <span className="text-muted-foreground">Year Built</span>
-                                    <span>2020</span>
+                                    {isEditing ? (
+                                        <input
+                                            type="number"
+                                            className="w-20 text-right border rounded px-1"
+                                            value={formData.yearBuilt || ""}
+                                            onChange={(e) => setFormData({ ...formData, yearBuilt: parseInt(e.target.value) || 0 })}
+                                        />
+                                    ) : (
+                                        <span>{property.yearBuilt || "-"}</span>
+                                    )}
                                 </div>
                             </div>
                         </div>

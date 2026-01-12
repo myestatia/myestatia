@@ -19,10 +19,41 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
+        budget: undefined,
         phone: "",
         language: "es",
         source: "web",
+        zone: "",
+        propertyType: "",
     });
+
+    const [errors, setErrors] = useState({
+        email: "",
+        phone: "",
+    });
+
+    const validateField = (name: string, value: string) => {
+        let error = "";
+        if (name === "email") {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                error = "Invalid email format.";
+            }
+        }
+        if (name === "phone") {
+            const phoneRegex = /^[\d\+\-\s]{9,16}$/;
+            if (value && !phoneRegex.test(value)) {
+                error = "Invalid phone format (9-16 digits/chars).";
+            }
+        }
+        setErrors(prev => ({ ...prev, [name]: error }));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
+        validateField(id, value);
+    };
 
     const createMutation = useMutation({
         mutationFn: createLead,
@@ -32,7 +63,8 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                 title: "Lead created",
                 description: "The lead has been successfully created.",
             });
-            setFormData({ name: "", email: "", phone: "", language: "es", source: "web" });
+            setFormData({ name: "", email: "", phone: "", language: "es", source: "web", budget: undefined, zone: "", propertyType: "" });
+            setErrors({ email: "", phone: "" });
             onClose();
         },
         onError: () => {
@@ -53,7 +85,28 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
             });
             return;
         }
-        createMutation.mutate(formData);
+
+        // Final check before submit
+        if (errors.email || errors.phone) {
+            toast({
+                title: "Validation Error",
+                description: "Please fix the validation errors before submitting.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setErrors(prev => ({ ...prev, email: "Invalid email format." }));
+            return;
+        }
+
+        const payload = {
+            ...formData,
+            budget: formData.budget ? parseFloat(formData.budget) : 0
+        };
+        createMutation.mutate(payload);
     };
 
     return (
@@ -70,7 +123,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         <Input
                             id="name"
                             value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onChange={handleChange}
                             className="col-span-3"
                         />
                     </div>
@@ -78,31 +131,95 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         <Label htmlFor="email" className="text-right">
                             Email *
                         </Label>
-                        <Input
-                            id="email"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="col-span-3"
-                        />
+                        <div className="col-span-3">
+                            <Input
+                                id="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className={errors.email ? "border-red-500" : ""}
+                            />
+                            {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
+                        </div>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="phone" className="text-right">
                             Phone
                         </Label>
+                        <div className="col-span-3">
+                            <Input
+                                id="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className={errors.phone ? "border-red-500" : ""}
+                            />
+                            {errors.phone && <span className="text-red-500 text-xs mt-1 block">{errors.phone}</span>}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="budget" className="text-right">
+                            Budget *
+                        </Label>
+                        <div className="col-span-3">
+                            <Input
+                                id="budget"
+                                type="text"
+                                value={formData.budget ? new Intl.NumberFormat('es-ES').format(parseFloat(formData.budget.replace(/\./g, ''))) : ''}
+                                onChange={(e) => {
+                                    const rawValue = e.target.value.replace(/\./g, '');
+                                    if (/^\d*$/.test(rawValue)) {
+                                        setFormData(prev => ({ ...prev, budget: rawValue }));
+                                    }
+                                }}
+                                className="col-span-3"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="zone" className="text-right">
+                            Zone
+                        </Label>
                         <Input
-                            id="phone"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            id="zone"
+                            value={formData.zone}
+                            onChange={handleChange}
                             className="col-span-3"
+                            placeholder="e.g. Marbella, Golden Mile"
                         />
                     </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="propertyType" className="text-right">
+                            Property Type
+                        </Label>
+                        <Select
+                            value={formData.propertyType}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, propertyType: val }))}
+                        >
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="villa">Villa</SelectItem>
+                                <SelectItem value="apartment">Apartment</SelectItem>
+                                <SelectItem value="penthouse">Penthouse</SelectItem>
+                                <SelectItem value="townhouse">Townhouse</SelectItem>
+                                <SelectItem value="plot">Plot</SelectItem>
+                                <SelectItem value="commercial">Commercial</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+
+
+                    {/* Rest of the form stays the same for Language/Source */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="language" className="text-right">
                             Language
                         </Label>
                         <Select
                             value={formData.language}
-                            onValueChange={(val) => setFormData({ ...formData, language: val })}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, language: val }))}
                         >
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select language" />
@@ -112,6 +229,13 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                                 <SelectItem value="en">English</SelectItem>
                                 <SelectItem value="fr">French</SelectItem>
                                 <SelectItem value="de">German</SelectItem>
+                                <SelectItem value="it">Italian</SelectItem>
+                                <SelectItem value="pt">Portuguese</SelectItem>
+                                <SelectItem value="ru">Russian</SelectItem>
+                                <SelectItem value="zh">Chinese</SelectItem>
+                                <SelectItem value="ja">Japanese</SelectItem>
+                                <SelectItem value="ko">Korean</SelectItem>
+                                <SelectItem value="ar">Arabic</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -121,7 +245,7 @@ const LeadCreateModal = ({ isOpen, onClose }: LeadCreateModalProps) => {
                         </Label>
                         <Select
                             value={formData.source}
-                            onValueChange={(val) => setFormData({ ...formData, source: val })}
+                            onValueChange={(val) => setFormData(prev => ({ ...prev, source: val }))}
                         >
                             <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select source" />

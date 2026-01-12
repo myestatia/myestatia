@@ -37,21 +37,23 @@ const Auth = () => {
 
       login(response.token, response.agent);
 
+      login(response.token, response.agent);
+
       toast({
-        title: isLogin ? "¡Bienvenido!" : "¡Cuenta creada!",
+        title: isLogin ? "Welcome!" : "Account created!",
         description: isLogin
-          ? "Has iniciado sesión correctamente"
-          : "Tu cuenta ha sido creada exitosamente",
+          ? "You have successfully logged in"
+          : "Your account has been successfully created",
       });
       navigate("/ai-actions");
     } catch (error: any) {
       console.error(error);
       let title = "Error";
-      let message = error.message || "Ha ocurrido un error durante la autenticación";
+      let message = error.message || "An error occurred during authentication";
 
       if (message.includes("401") || message.includes("Unauthorized")) {
-        title = isLogin ? "Acceso Denegado" : "Error de Registro";
-        message = "Usuario y/o contraseña incorrectas. Por favor asegúrate de que tus credenciales son correctas.";
+        title = isLogin ? "Access Denied" : "Registration Error";
+        message = "Incorrect email or password. Please check your credentials.";
       }
 
       toast({
@@ -66,8 +68,8 @@ const Auth = () => {
 
   const handleGoogleAuth = () => {
     toast({
-      title: "Próximamente",
-      description: "Autenticación con Google estará disponible pronto",
+      title: "Coming soon",
+      description: "Google authentication will be available soon",
     });
   };
 
@@ -80,7 +82,7 @@ const Auth = () => {
             <CardTitle className="text-2xl font-bold">MyEstatia</CardTitle>
           </div>
           <CardDescription>
-            {isLogin ? "Inicia sesión en tu cuenta" : "Crea una nueva cuenta"}
+            {isLogin ? "Sign in to your account" : "Create a new account"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -88,10 +90,10 @@ const Auth = () => {
             {!isLogin && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nombre Completo</Label>
+                  <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
-                    placeholder="Juan Pérez"
+                    placeholder="John Doe"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
@@ -99,12 +101,12 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="company">Nombre de la Inmobiliaria</Label>
+                  <Label htmlFor="company">Real Estate Company Name</Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="company"
-                      placeholder="Inmobiliaria Ejemplar"
+                      placeholder="Exemplar Real Estate"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       required
@@ -119,7 +121,7 @@ const Auth = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="tu@email.com"
+                placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -127,7 +129,7 @@ const Auth = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -139,7 +141,7 @@ const Auth = () => {
               />
             </div>
             <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={loading}>
-              {loading ? "Cargando..." : isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+              {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
@@ -148,7 +150,7 @@ const Auth = () => {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">O continúa con</span>
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
             </div>
           </div>
 
@@ -172,7 +174,7 @@ const Auth = () => {
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary hover:underline"
             >
-              {isLogin ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
+              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
             </button>
           </div>
         </CardContent>

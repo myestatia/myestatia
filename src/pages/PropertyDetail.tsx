@@ -70,7 +70,7 @@ const PropertyDetail = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-subtle">
+        <div className="min-h-screen bg-gradient-subtle" id="property-detail">
             <Header />
 
             <div className="container mx-auto p-6">

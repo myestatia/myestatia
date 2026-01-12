@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Share2, Edit, Save, X, Home, Bed, Bath } from "lucide-react";
 import { format } from "date-fns";
 import { UseMutationResult } from "@tanstack/react-query";
+import ShareDialog from "./ShareDialog";
 
 interface PropertyHeaderProps {
     property: Property;
@@ -37,13 +38,13 @@ const PropertyHeader = ({
                         alt={property.title}
                         className="w-full md:w-1/3 h-64 object-cover rounded-lg"
                     />
-                    <div className="flex-1">
+                    <div className="flex-1" id="property-header">
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">
                                     <h1 className="text-3xl font-bold">{property.title}</h1>
                                     <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                                        {property.status || "Available"}
+                                        {property.status.charAt(0).toUpperCase() + property.status.slice(1) || "Available"}
                                     </Badge>
                                     {property.isNew && <Badge className="bg-success text-success-foreground">New</Badge>}
                                 </div>
@@ -66,10 +67,7 @@ const PropertyHeader = ({
                                     </>
                                 ) : (
                                     <>
-                                        <Button variant="outline" size="sm">
-                                            <Share2 className="mr-2 h-4 w-4" />
-                                            Share
-                                        </Button>
+                                        <ShareDialog property={property} />
                                         <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
                                             <Edit className="mr-2 h-4 w-4" />
                                             Edit

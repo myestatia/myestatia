@@ -19,6 +19,7 @@ export interface Lead {
     propertyId?: string;
     rooms?: number;
     parking?: boolean;
+    notes?: string;
 }
 
 export const getLeads = async (): Promise<Lead[]> => {
