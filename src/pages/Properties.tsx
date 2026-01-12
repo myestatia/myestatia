@@ -26,6 +26,8 @@ const Properties = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [minRooms, setMinRooms] = useState("");
   const [zone, setZone] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
 
   const debouncedSearch = useDebounce(searchQuery, 500);
   const debouncedMinPrice = useDebounce(minPrice, 500);
@@ -34,13 +36,15 @@ const Properties = () => {
   const debouncedZone = useDebounce(zone, 500);
 
   const { data: propertiesData, isLoading, error } = useQuery({
-    queryKey: ['properties', debouncedSearch, debouncedMinPrice, debouncedMaxPrice, debouncedMinRooms, debouncedZone],
+    queryKey: ['properties', debouncedSearch, debouncedMinPrice, debouncedMaxPrice, debouncedMinRooms, debouncedZone, statusFilter, sourceFilter],
     queryFn: () => getProperties({
       search: debouncedSearch,
       minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
       maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
       minRooms: debouncedMinRooms ? Number(debouncedMinRooms) : undefined,
       zone: debouncedZone,
+      status: statusFilter,
+      source: sourceFilter,
     }),
     placeholderData: (previousData) => previousData,
   });
@@ -106,7 +110,7 @@ const Properties = () => {
                   className="pl-10"
                 />
               </div>
-              <Select defaultValue="all">
+              <Select value={sourceFilter} onValueChange={setSourceFilter}>
                 <SelectTrigger className="w-full md:w-[180px]">
                   <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Source" />
@@ -119,7 +123,7 @@ const Properties = () => {
                   <SelectItem value="mls">MLS USA</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="all">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-[180px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>

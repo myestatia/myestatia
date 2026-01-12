@@ -38,7 +38,7 @@ const PropertyHeader = ({
                         alt={property.title}
                         className="w-full md:w-1/3 h-64 object-cover rounded-lg"
                     />
-                    <div className="flex-1">
+                    <div className="flex-1" id="property-header">
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <div className="flex items-center gap-3 mb-2">

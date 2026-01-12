@@ -29,6 +29,7 @@ export interface PropertyFilters {
     minRooms?: number;
     zone?: string;
     status?: string;
+    source?: string;
     search?: string;
 }
 
@@ -38,8 +39,11 @@ export const getProperties = async (filters?: PropertyFilters): Promise<Property
         if (filters.minPrice) params.append('minBudget', filters.minPrice.toString());
         if (filters.maxPrice) params.append('maxBudget', filters.maxPrice.toString());
         if (filters.minRooms) params.append('minRooms', filters.minRooms.toString());
-        if (filters.zone) params.append('address', filters.zone); // Using address as zone filter for now
-        if (filters.search) params.append('address', filters.search); // Search also maps to address/zone
+        if (filters.zone) params.append('address', filters.zone);
+        if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+        if (filters.search) params.append('q', filters.search);
+        // source is mapped to 'origin' in backend filtering via 'source' param in handler
+        if (filters.source && filters.source !== 'all') params.append('source', filters.source);
     }
 
     return fetchClient<Property[]>(`/properties/search?${params.toString()}`);
