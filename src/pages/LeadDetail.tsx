@@ -385,7 +385,83 @@ const LeadDetail = () => {
               </TabsContent>
 
               <TabsContent value="matching" className="space-y-4 mt-4" id="lead-matching">
-                {properties?.slice(0, 2).map((prop) => (
+                {/* 1. Show Linked Property First */}
+                {lead.propertyId && properties?.find(p => p.id === lead.propertyId || p.reference === lead.propertyId) && (
+                  (() => {
+                    const linkedProp = properties?.find(p => p.id === lead.propertyId || p.reference === lead.propertyId);
+                    if (!linkedProp) return null;
+
+                    // Determine if dismissed based on status
+                    const isDismissed = lead.status === 'discarded' || lead.status === 'rejected';
+
+                    // WhatsApp logic
+                    const publicLink = `${window.location.origin}/p/${linkedProp.id}`;
+                    const whatsappText = `Hola ${lead.name || ""}, aquí tienes los detalles de la propiedad que te interesó: ${publicLink}`;
+                    const whatsappUrl = `https://wa.me/${lead.phone?.replace(/\s+/g, '') || ""}?text=${encodeURIComponent(whatsappText)}`;
+
+                    const handleDiscardInterest = () => {
+                      updateLeadMutation.mutate({ status: 'discarded' }); // Use status instead of propertyId: null
+                    };
+
+                    // IF DISMISSED, DO NOT RENDER HERE (Render at bottom)
+                    if (isDismissed) return null;
+
+                    return (
+                      <Card key={linkedProp.id} className="shadow-card hover:shadow-card-hover transition-shadow border-primary/50 bg-primary/5">
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+                            <img
+                              src={linkedProp.image || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop"}
+                              alt="Property"
+                              className="w-32 h-32 object-cover rounded-lg"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-bold text-lg">{linkedProp.price}€</p>
+                                    <Badge className="bg-primary text-primary-foreground">Inquired Property</Badge>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{linkedProp.zone || linkedProp.address}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground font-mono">{linkedProp.reference}</p>
+                                </div>
+                              </div>
+                              <div className="flex gap-4 text-sm text-muted-foreground mb-3">
+                                <span>{linkedProp.area}m²</span>
+                                <span>{linkedProp.rooms} bed</span>
+                                <span>{linkedProp.bathrooms} bath</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700 text-white w-full"
+                                  onClick={() => window.open(whatsappUrl, '_blank')}
+                                >
+                                  <MessageSquare className="mr-2 h-3 w-3" />
+                                  Send details via WhatsApp
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="text-muted-foreground hover:text-destructive"
+                                  onClick={handleDiscardInterest}
+                                  title="Discard interest in this property"
+                                >
+                                  Dismiss
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })()
+                )}
+
+                {/* 2. Show Other Matching Properties (Mock logic for now) */}
+                {properties?.filter(p => p.id !== lead.propertyId && p.reference !== lead.propertyId).slice(0, 2).map((prop) => (
                   <Card key={prop.id} className="shadow-card hover:shadow-card-hover transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex gap-4">
@@ -400,9 +476,12 @@ const LeadDetail = () => {
                               <p className="font-bold text-lg">{prop.price}€</p>
                               <p className="text-sm text-muted-foreground">{prop.zone || prop.address}</p>
                             </div>
-                            <Badge className="bg-success text-success-foreground">
-                              95% match
-                            </Badge>
+                            <div className="flex flex-col items-end gap-1">
+                              <Badge className="bg-success text-success-foreground">
+                                95% match
+                              </Badge>
+                              <p className="text-xs text-muted-foreground font-mono">{prop.reference}</p>
+                            </div>
                           </div>
                           <div className="flex gap-4 text-sm text-muted-foreground mb-3">
                             <span>{prop.area}m²</span>
@@ -423,9 +502,66 @@ const LeadDetail = () => {
                     </CardContent>
                   </Card>
                 ))}
+
+                {/* 3. Show Rejected Property (Moved to bottom) */}
+                {lead.propertyId && (lead.status === 'discarded' || lead.status === 'rejected') && (
+                  (() => {
+                    const linkedProp = properties?.find(p => p.id === lead.propertyId || p.reference === lead.propertyId);
+                    if (!linkedProp) return null;
+
+                    // WhatsApp logic (reused)
+                    const publicLink = `${window.location.origin}/p/${linkedProp.id}`;
+                    const whatsappText = `Hola ${lead.name || ""}, aquí tienes los detalles de la propiedad que te interesó: ${publicLink}`;
+                    const whatsappUrl = `https://wa.me/${lead.phone?.replace(/\s+/g, '') || ""}?text=${encodeURIComponent(whatsappText)}`;
+
+                    return (
+                      <Card key={linkedProp.id} className="shadow-card transition-shadow border-destructive/20 bg-destructive/5 mt-8 opacity-75 grayscale hover:grayscale-0 hover:opacity-100">
+                        <CardContent className="p-4">
+                          <div className="flex gap-4">
+                            <img
+                              src={linkedProp.image || "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop"}
+                              alt="Property"
+                              className="w-32 h-32 object-cover rounded-lg"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-bold text-lg text-muted-foreground line-through decoration-destructive">{linkedProp.price}€</p>
+                                    <Badge variant="destructive">Rejected Interest</Badge>
+                                  </div>
+                                  <p className="text-sm text-muted-foreground">{linkedProp.zone || linkedProp.address}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-xs text-muted-foreground font-mono">{linkedProp.reference}</p>
+                                </div>
+                              </div>
+                              <div className="flex gap-4 text-sm text-muted-foreground mb-3">
+                                <span>{linkedProp.area}m²</span>
+                                <span>{linkedProp.rooms} bed</span>
+                                <span>{linkedProp.bathrooms} bath</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700 text-white w-full"
+                                  onClick={() => window.open(whatsappUrl, '_blank')}
+                                >
+                                  <MessageSquare className="mr-2 h-3 w-3" />
+                                  Send details via WhatsApp
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })()
+                )}
+
               </TabsContent>
 
-              <TabsContent value="documentos" className="mt-4">
+              <TabsContent value="documents" className="mt-4">
                 <Card className="shadow-card">
                   <CardContent className="p-6">
                     <p className="text-muted-foreground text-center py-8">
