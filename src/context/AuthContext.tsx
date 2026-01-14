@@ -14,6 +14,7 @@ interface AuthContextType {
     agent: Agent | null;
     login: (token: string, agent: Agent) => void;
     logout: () => void;
+    updateAgent: (agent: Agent) => void;
     isAuthenticated: boolean;
 }
 
@@ -53,10 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Optional: client.defaults.headers.common['Authorization'] = ''; 
     };
 
+    const updateAgent = (newAgent: Agent) => {
+        setAgent(newAgent);
+    };
+
     const isAuthenticated = !!token;
 
     return (
-        <AuthContext.Provider value={{ token, agent, login, logout, isAuthenticated }}>
+        <AuthContext.Provider value={{ token, agent, login, logout, updateAgent, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );
