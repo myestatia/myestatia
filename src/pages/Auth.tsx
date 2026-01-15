@@ -5,17 +5,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, Building2 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { fetchClient } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
+import InvitationRequestModal from "@/components/InvitationRequestModal";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [companyName, setCompanyName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -25,25 +24,16 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const endpoint = isLogin ? "/auth/login" : "/auth/register";
-      const payload = isLogin
-        ? { email, password }
-        : { email, password, name, company_name: companyName };
-
-      const response = await fetchClient<{ token: string; agent: any }>(endpoint, {
+      const response = await fetchClient<{ token: string; agent: any }>("/auth/login", {
         method: "POST",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ email, password }),
       });
 
       login(response.token, response.agent);
 
-      login(response.token, response.agent);
-
       toast({
-        title: isLogin ? "Welcome!" : "Account created!",
-        description: isLogin
-          ? "You have successfully logged in"
-          : "Your account has been successfully created",
+        title: "Welcome!",
+        description: "You have successfully logged in",
       });
       navigate("/ai-actions");
     } catch (error: any) {
@@ -52,7 +42,7 @@ const Auth = () => {
       let message = error.message || "An error occurred during authentication";
 
       if (message.includes("401") || message.includes("Unauthorized")) {
-        title = isLogin ? "Access Denied" : "Registration Error";
+        title = "Access Denied";
         message = "Incorrect email or password. Please check your credentials.";
       }
 
@@ -66,13 +56,6 @@ const Auth = () => {
     }
   };
 
-  const handleGoogleAuth = () => {
-    toast({
-      title: "Coming soon",
-      description: "Google authentication will be available soon",
-    });
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <Card className="w-full max-w-md shadow-card-hover border-border">
@@ -82,40 +65,11 @@ const Auth = () => {
             <CardTitle className="text-2xl font-bold">MyEstatia</CardTitle>
           </div>
           <CardDescription>
-            {isLogin ? "Sign in to your account" : "Create a new account"}
+            Sign in to your account
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleAuth} className="space-y-4">
-            {!isLogin && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="border-border"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company">Real Estate Company Name</Label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="company"
-                      placeholder="Exemplar Real Estate"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      required
-                      className="border-border pl-9"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -131,15 +85,13 @@ const Auth = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                {isLogin && (
-                  <button
-                    type="button"
-                    onClick={() => navigate("/forgot-password")}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot Password?
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => navigate("/forgot-password")}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
               </div>
               <Input
                 id="password"
@@ -152,7 +104,7 @@ const Auth = () => {
               />
             </div>
             <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={loading}>
-              {loading ? "Loading..." : isLogin ? "Sign In" : "Create Account"}
+              {loading ? "Loading..." : "Sign In"}
             </Button>
           </form>
 
@@ -161,39 +113,30 @@ const Auth = () => {
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-card px-2 text-muted-foreground">Or</span>
             </div>
           </div>
 
-          {/* Google Auth - Disabled until implemented
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleAuth}
-          >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-               ...
-            </svg>
-            Google
-          </Button>
-          */}
-
-          <div className="text-center text-sm">
-            <button
+          <div className="text-center text-sm space-y-2">
+            <p className="text-muted-foreground">Don't have an account?</p>
+            <Button
               type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-primary hover:underline"
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowInvitationModal(true)}
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
+              Request Invitation
+            </Button>
           </div>
         </CardContent>
       </Card>
+
+      <InvitationRequestModal
+        open={showInvitationModal}
+        onOpenChange={setShowInvitationModal}
+      />
     </div>
   );
 };
-
-
 
 export default Auth;
