@@ -16,6 +16,7 @@ import { getLead, updateLead } from "@/api/leads";
 import { getConversations, sendMessage } from "@/api/conversations";
 import { getProperties } from "@/api/properties";
 import { format } from "date-fns";
+import PropertySelectionModal from "@/components/PropertySelectionModal";
 
 const LeadDetail = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const LeadDetail = () => {
   const [aiPrompt, setAiPrompt] = useState("");
   const [recording, setRecording] = useState(false);
   const [messageInput, setMessageInput] = useState("");
+  const [showPresentationModal, setShowPresentationModal] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -582,7 +584,12 @@ const LeadDetail = () => {
                   Quick AI Actions
                 </h3>
                 <div className="space-y-2">
-                  <Button variant="outline" className="w-full justify-start" size="sm">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    size="sm"
+                    onClick={() => setShowPresentationModal(true)}
+                  >
                     Generate presentation
                   </Button>
                   <Button variant="outline" className="w-full justify-start" size="sm">
@@ -626,6 +633,16 @@ const LeadDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Property Selection Modal */}
+      {lead && (
+        <PropertySelectionModal
+          leadId={id!}
+          leadName={lead.name}
+          open={showPresentationModal}
+          onOpenChange={setShowPresentationModal}
+        />
+      )}
     </div>
   );
 };
